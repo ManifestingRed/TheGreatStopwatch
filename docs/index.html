@@ -1,5 +1,7 @@
 <html>
 <head>
+	<link rel="stylesheet" type="text/css" href="light.theme.css">
+	<link rel="stylesheet" type="text/css" href="dark.theme.css">
 	<style type="text/css">
 		.tabs > .tab {
 			display:  none;
@@ -8,16 +10,24 @@
 			display:  initial;
 		}
 		.tabs > .tabBar {
-			border: solid 1px black;
+			border: solid 1px;
+			border-color: var(--theme-tabs-border-color);
 		}
 		.tabs > .tabBar > .tabBarItem {
 			display: inline-block;
 			padding: 5px;
-			border-right: solid 1px black;
+			border-right: solid 1px;
+			color: var(--theme-tabs-text-color);
+			border-color: var(--theme-tabs-tab-border-color);
 		}
 		.tabs > .tabBar > .tabBarItem:hover {
-			background-color: rgb(200, 200, 200);
+			background-color: var(--theme-tabs-tab-hover-background-color);
 			cursor: pointer;
+		}
+	</style>
+	<style type="text/css">
+		ol.config > li > .name {
+			display: inline-block;
 		}
 	</style>
 	<style type="text/css">
@@ -25,9 +35,12 @@
 			margin: 0;
 			padding: 10px;
 			border: 10px solid rgba(0,0,0,0);
+			background-color: var(--theme-background-color);
+			color: var(--theme-text-color);
 		}
 		body.paused {
-			border: 10px solid yellow;
+			border: 10px solid;
+			border-color: var(--theme-splits-paused-border-color);
 		}
 		.icon {
 			width: 16px;
@@ -37,7 +50,8 @@
 			vertical-align: middle;
 		}
 		.icon:hover, icon:focus {
-			border: dashed lightgrey 3px;
+			border: dashed 3px;
+			border-color: var(--theme-icon-hover-border-color);
 			padding:  0px;
 			cursor: pointer;
 		}
@@ -96,7 +110,7 @@
 <body>
 	<div class='tabs'>
 		<div class='tabbar'></div>
-		<div class='tab active' data-title='Splits'>
+		<div class='tab active' data-title='splits'>
 			<div>Splits<img id='copyAll' title='Copy all' class='icon' src='copy.png'></div> <ol id='splits'></ol>
 			<div id='currentSplit'><div class='name'>Current</div><div class='time'></div></div>
 			<div id='totalTime'><div class='name'>Total</div><div class='time'></div></div>
@@ -104,13 +118,21 @@
 			<button name='pause'>pause</button>
 			<button name='split'>split</button>
 		</div>
-		<div class='tab' data-title='Info'>
+		<div class='tab' data-title='info'>
 			<div class='info'><strong>Info</strong>
 • Click descriptions to edit.
 • Global shortcut 'spacebar' to split (when not editing description).
 • <img id='copyAll' class='icon' src='copy.png'> copies to clipboard.</div>
 		</div>
+		<div class='tab' data-title='config'>
+			<ol class='config'>
+				<li><div class='name'>Dark mode</div><input type='checkbox' name='darkMode' checked></li>
+				<li><div class='name'>Start on load</div><input type='checkbox' name='startOnLoad'></li>
+			</ol>
+		</div>
 	</div>
+	<script>
+	</script>
 	<script>
 		const tabBar = document.querySelector('.tabbar');
 		document.querySelectorAll('.tabs > .tab').forEach(tab => {
@@ -125,6 +147,39 @@
 			});
 
 			tabBar.appendChild(barItem);
+		});
+	</script>
+	<script>
+		const configs = {};
+		configs.getBoolOpt = name => window.localStorage.getItem(`config.${name}`);
+		configs.getBool = name => window.localStorage.getItem(`config.${name}`) === 'true';
+		configs.setBool = (name, value) => window.localStorage.setItem(`config.${name}`, !!value);
+		configs.updaters = {
+			darkMode: () => {
+				const theme = configs.getBool('darkMode')?'theme-dark':'theme-light';
+				Array.from(document.documentElement.classList.values())
+					.filter(x => x.startsWith('theme-'))
+					.forEach(x => document.documentElement.classList.remove(x));
+				document.documentElement.classList.add(theme);
+			},
+			startOnLoad: () => {
+			}
+		};
+		document.querySelectorAll('ol.config input[type=checkbox]').forEach(config => {
+			if (configs.getBoolOpt(config.name) === null) {
+				configs.setBool(config.name, config.checked);
+			}
+			const value = configs.getBool(config.name);
+			config.checked = value;
+			const updater = configs.updaters[config.name];
+			updater();
+		});
+		document.querySelectorAll('ol.config input[type=checkbox]').forEach(config => {
+			config.addEventListener('change', function() {
+				configs.setBool(config.name, !!config.checked);
+				const updater = configs.updaters[config.name];
+				updater();
+			});
 		});
 	</script>
 	<script>
@@ -257,7 +312,8 @@
 		function doPause() {
 			if (timer) {
 				timer = clearInterval(timer);
-				document.body.className = 'paused';
+				document.body.classList.add('running');
+				document.body.classList.add('paused');
 				document.querySelector('button[name=pause]').textContent = 'unpause';
 			} else {
 				fullPrecisionPreviousTime = Date.now();
@@ -265,7 +321,8 @@
 					update();
 					render();
 				}, 100);
-				document.body.className = 'running';
+				document.body.classList.remove('paused');
+				document.body.classList.add('running');
 				document.querySelector('button[name=pause]').textContent = 'pause';
 			}
 		}
@@ -293,6 +350,8 @@
 
 		doReset();
 		doPause();
+		if (!configs.getBool('startOnLoad'))
+			doPause();
 	</script>
 </body>
 </html>	

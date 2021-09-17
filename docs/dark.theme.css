@@ -1,0 +1,13 @@
+:root.theme-dark {
+	--theme-background-color: #282931;
+	--theme-text-color: #c9d1d9;
+
+	--theme-tabs-text-color: #f0f6fc;
+	--theme-tabs-border-color: white;
+	--theme-tabs-tab-border-color: #f0f6fc;
+	--theme-tabs-tab-hover-background-color: rgb(100, 100, 100);
+
+	--theme-splits-paused-border-color: yellow;
+
+	--theme-icon-hover-border-color: lightgrey;
+}
