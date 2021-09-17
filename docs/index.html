@@ -1,6 +1,26 @@
 <html>
 <head>
 	<style type="text/css">
+		.tabs > .tab {
+			display:  none;
+		}
+		.tabs > .tab.active {
+			display:  initial;
+		}
+		.tabs > .tabBar {
+			border: solid 1px black;
+		}
+		.tabs > .tabBar > .tabBarItem {
+			display: inline-block;
+			padding: 5px;
+			border-right: solid 1px black;
+		}
+		.tabs > .tabBar > .tabBarItem:hover {
+			background-color: rgb(200, 200, 200);
+			cursor: pointer;
+		}
+	</style>
+	<style type="text/css">
 		body {
 			margin: 0;
 			padding: 10px;
@@ -19,6 +39,7 @@
 		.icon:hover, icon:focus {
 			border: dashed lightgrey 3px;
 			padding:  0px;
+			cursor: pointer;
 		}
 
 		#splits {
@@ -73,17 +94,39 @@
 	</style>
 </head>
 <body>
-	<div>Splits<img id='copyAll' title='Copy all' class='icon' src='copy.png'></div> <ol id='splits'></ol>
-	<div id='currentSplit'><div class='name'>Current</div><div class='time'></div></div>
-	<div id='totalTime'><div class='name'>Total</div><div class='time'></div></div>
-	<button name='reset'>reset</button>
-	<button name='pause'>pause</button>
-	<button name='split'>split</button>
-	<br/><br/><br/>
-	<div class='info'><strong>Info</strong>
+	<div class='tabs'>
+		<div class='tabbar'></div>
+		<div class='tab active' data-title='Splits'>
+			<div>Splits<img id='copyAll' title='Copy all' class='icon' src='copy.png'></div> <ol id='splits'></ol>
+			<div id='currentSplit'><div class='name'>Current</div><div class='time'></div></div>
+			<div id='totalTime'><div class='name'>Total</div><div class='time'></div></div>
+			<button name='reset'>reset</button>
+			<button name='pause'>pause</button>
+			<button name='split'>split</button>
+		</div>
+		<div class='tab' data-title='Info'>
+			<div class='info'><strong>Info</strong>
 • Click descriptions to edit.
 • Global shortcut 'spacebar' to split (when not editing description).
 • <img id='copyAll' class='icon' src='copy.png'> copies to clipboard.</div>
+		</div>
+	</div>
+	<script>
+		const tabBar = document.querySelector('.tabbar');
+		document.querySelectorAll('.tabs > .tab').forEach(tab => {
+			const title = tab.getAttribute('data-title')
+			const barItem = document.createElement('div');
+			barItem.className = 'tabBarItem';
+			barItem.textContent = title;
+			barItem.addEventListener('click', function() {
+				const active = document.querySelector('.tabs > .tab.active');
+				if (active) active.className = 'tab';
+				tab.className = 'tab active';
+			});
+
+			tabBar.appendChild(barItem);
+		});
+	</script>
 	<script>
 		function timeBetween(start, end) {
 			var delta = (end - start);
