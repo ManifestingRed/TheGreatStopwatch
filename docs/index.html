@@ -142,6 +142,7 @@
 				<li><div class='name'>First split name</div><input type='text' name='firstSplitName' value='The Beginning'></li>
 				<li><div class='name'>New split name</div><input type='text' name='newSplitName' value='New Split'></li>
 				<li><div class='name'>Manual increment</div><input type='number' name='manualIncrement' value='1'></li>
+				<li><div class='name'>Digit padding</div><input type='number' name='zeroPadding' value='2'></li>
 			</ol>
 		</div>
 	</div>
@@ -254,8 +255,9 @@
 			};
 		}
 		function formatTimeDelta(from, to) {
+			const pad = x => x.toString().padStart(configs.getInt('zeroPadding'), '0');
 			const delta = timeBetween(from, to);
-			const formatted = `${delta.days}:${delta.hours}:${delta.minutes}:${delta.seconds}`;
+			const formatted = `${pad(delta.days)}:${pad(delta.hours)}:${pad(delta.minutes)}:${pad(delta.seconds)}`;
 			return formatted;
 		}
 		function TimeCode(time, name) {
