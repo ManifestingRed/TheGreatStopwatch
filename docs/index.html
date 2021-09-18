@@ -45,13 +45,16 @@
 		.icon {
 			width: 16px;
 			height: 16px;
-			border: none;
-			padding: 3px;
 			vertical-align: middle;
 		}
-		.icon:hover, icon:focus {
+
+		.button {
+			border: none;
+			padding: 3px;
+		}
+		.button:hover, .button:focus {
 			border: dashed 3px;
-			border-color: var(--theme-icon-hover-border-color);
+			border-color: var(--theme-button-hover-border-color);
 			padding:  0px;
 			cursor: pointer;
 		}
@@ -62,9 +65,17 @@
 		.split .time {
 			display: inline-block;
 			min-width: 70px;
+			text-align: center;
+		}
+		.split .dec {
+			display: inline-block;
+		}
+		.split .inc {
+			display: inline-block;
 		}
 		.split .name {
 			display: inline-block;
+			margin-left: 10px;
 		}
 		.split .icon {
 			margin-left: 10px;
@@ -111,7 +122,7 @@
 	<div class='tabs'>
 		<div class='tabbar'></div>
 		<div class='tab active' data-title='splits'>
-			<div>Splits<img id='copyAll' title='Copy all' class='icon' src='copy.png'></div> <ol id='splits'></ol>
+			<div>Splits<img id='copyAll' title='Copy all' class='button icon' src='copy.png'></div> <ol id='splits'></ol>
 			<div id='currentSplit'><div class='name'>Current</div><div class='time'></div></div>
 			<div id='totalTime'><div class='name'>Total</div><div class='time'></div></div>
 			<button name='reset'>reset</button>
@@ -122,7 +133,7 @@
 			<div class='info'><strong>Info</strong>
 • Click descriptions to edit.
 • Global shortcut 'spacebar' to split (when not editing description).
-• <img id='copyAll' class='icon' src='copy.png'> copies to clipboard.</div>
+• <img id='copyAll' class='button icon' src='copy.png'> copies to clipboard.</div>
 		</div>
 		<div class='tab' data-title='config'>
 			<ol class='config'>
@@ -130,6 +141,7 @@
 				<li><div class='name'>Start on load</div><input type='checkbox' name='startOnLoad'></li>
 				<li><div class='name'>First split name</div><input type='text' name='firstSplitName' value='The Beginning'></li>
 				<li><div class='name'>New split name</div><input type='text' name='newSplitName' value='New Split'></li>
+				<li><div class='name'>Manual increment</div><input type='number' name='manualIncrement' value='1'></li>
 			</ol>
 		</div>
 	</div>
@@ -158,6 +170,9 @@
 		configs.setBool = (name, value) => window.localStorage.setItem(`config.${name}`, !!value);
 		configs.getString = name => window.localStorage.getItem(`config.${name}`);
 		configs.setString = (name, value) => window.localStorage.setItem(`config.${name}`, value==null?null:value.toString());
+		configs.getIntOpt = name => window.localStorage.getItem(`config.${name}`);
+		configs.getInt = name => parseInt(window.localStorage.getItem(`config.${name}`));
+		configs.setInt = (name, value) => window.localStorage.setItem(`config.${name}`, parseInt(value));
 
 		configs.updaters = {
 			darkMode: () => {
@@ -200,6 +215,23 @@
 		document.querySelectorAll('ol.config input[type=text]').forEach(config => {
 			config.addEventListener('change', function() {
 				configs.setString(config.name, config.value);
+				const updater = configs.updaters[config.name];
+				updater && updater();
+			});
+		});
+
+		document.querySelectorAll('ol.config input[type=number]').forEach(config => {
+			if (configs.getIntOpt(config.name) === null) {
+				configs.setInt(config.name, config.value);
+			}
+			const value = configs.getInt(config.name);
+			config.value = value;
+			const updater = configs.updaters[config.name];
+			updater && updater();
+		});
+		document.querySelectorAll('ol.config input[type=number]').forEach(config => {
+			config.addEventListener('change', function() {
+				configs.setInt(config.name, config.value);
 				const updater = configs.updaters[config.name];
 				updater && updater();
 			});
@@ -262,6 +294,13 @@
 			const timecode = timecodes[index];
 			timecode.name = e.currentTarget.value;
 		}
+		function onSplitTimeInc(e, id, inc) {
+			var index = timecodes.findIndex(x => x.id === id);
+			const timecode = timecodes[index];
+			timecode.time += inc;
+			var elem = document.querySelector(`#splits > #split-${id} .time`);
+			elem.textContent = formatTimeDelta(timecodes[0].time, timecode.time);
+		}
 		function onSplitCopy(id) {
 			var index = timecodes.findIndex(x => x.id === id);
 			const timecode = timecodes[index];
@@ -280,10 +319,24 @@
 			split.id = `split-${timecode.id}`;
 			split.className = 'split';
 
+			const splitTimeDec = document.createElement('div');
+			splitTimeDec.className = 'button dec';
+			splitTimeDec.textContent = '-';
+			splitTimeDec.addEventListener('click', (e) => onSplitTimeInc(e, timecode.id, -1000*configs.getInt('manualIncrement')));
+			if (timecode === timecodes[0]) splitTimeDec.style.visibility = 'hidden';
+			split.appendChild(splitTimeDec);
+
 			const splitTime = document.createElement('div');
 			splitTime.className = 'time';
 			splitTime.textContent = formatTimeDelta(timecodes[0].time, timecode.time);
 			split.appendChild(splitTime);
+
+			const splitTimeInc = document.createElement('div');
+			splitTimeInc.className = 'button inc';
+			splitTimeInc.textContent = '+';
+			splitTimeInc.addEventListener('click', (e) => onSplitTimeInc(e, timecode.id, 1000*configs.getInt('manualIncrement')));
+			if (timecode === timecodes[0]) splitTimeInc.style.visibility = 'hidden';
+			split.appendChild(splitTimeInc);
 
 			const splitName = document.createElement('input');
 			splitName.type = 'text';
@@ -293,7 +346,7 @@
 			split.appendChild(splitName);
 
 			const copyButton = document.createElement('img');
-			copyButton.className = 'icon copy';
+			copyButton.className = 'button icon copy';
 			copyButton.src = 'copy.png';
 			copyButton.title = 'Copy';
 			copyButton.addEventListener('click', () => onSplitCopy(timecode.id));
@@ -301,7 +354,7 @@
 
 			if (timecode !== timecodes[0]) {
 				const deleteButton = document.createElement('img');
-				deleteButton.className = 'icon delete';
+				deleteButton.className = 'button icon delete';
 				deleteButton.src = 'delete.png';
 				deleteButton.addEventListener('click', () => onSplitDelete(timecode.id));
 				split.appendChild(deleteButton);
@@ -351,8 +404,10 @@
 		}
 
 		function onkeypress(e) {
-			if (e.charCode == 32 && document.activeElement == document.body) {
-				doSplit();
+			if (e.charCode == 32) {
+				const isTextInput = document.activeElement && document.activeElement.tagName == 'input' && document.activeElement.type == 'text';
+				if (!isTextInput)
+					doSplit();
 			}
 		}
 
@@ -360,15 +415,17 @@
 		document.querySelector('#copyAll').addEventListener('click', () => onCopyAll());
 		document.querySelector('button[name=split]').addEventListener('click', (e) => {
 			doSplit();
-			e.currentTarget.blur(); // reserve focus for global split toggle shortcut
 		});
 		document.querySelector('button[name=reset]').addEventListener('click', (e) => {
 			doReset()
-			e.currentTarget.blur();
 		});
 		document.querySelector('button[name=pause]').addEventListener('click', (e) => {
 			doPause()
-			e.currentTarget.blur();
+		});
+		Array.from(document.querySelectorAll('button')).forEach(button => {
+			button.addEventListener('click', (e) => {
+				e.currentTarget.blur(); // reserve focus for global split toggle shortcut
+			});
 		});
 
 		doReset();
