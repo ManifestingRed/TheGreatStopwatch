@@ -3,6 +3,17 @@
 	<link rel="stylesheet" type="text/css" href="light.theme.css">
 	<link rel="stylesheet" type="text/css" href="dark.theme.css">
 	<style type="text/css">
+		.table {
+			display: table;
+		}
+		.tr {
+			display: table-row;
+		}
+		.td {
+			display: table-cell;
+		}
+	</style>
+	<style type="text/css">
 		.tabs > .tab {
 			display:  none;
 		}
@@ -26,8 +37,8 @@
 		}
 	</style>
 	<style type="text/css">
-		ol.config > li > .name {
-			display: inline-block;
+		.tab[data-title=config] .table .tr .td {
+			padding: 5px;
 		}
 	</style>
 	<style type="text/css">
@@ -136,13 +147,13 @@
 • <img id='copyAll' class='button icon' src='copy.png'> copies to clipboard.</div>
 		</div>
 		<div class='tab' data-title='config'>
-			<ol class='config'>
-				<li><div class='name'>Dark mode</div><input type='checkbox' name='darkMode' checked></li>
-				<li><div class='name'>Start on load</div><input type='checkbox' name='startOnLoad'></li>
-				<li><div class='name'>First split name</div><input type='text' name='firstSplitName' value='The Beginning'></li>
-				<li><div class='name'>New split name</div><input type='text' name='newSplitName' value='New Split'></li>
-				<li><div class='name'>Manual increment</div><input type='number' name='manualIncrement' value='1'></li>
-				<li><div class='name'>Digit padding</div><input type='number' name='zeroPadding' value='2'></li>
+			<div class='table config'>
+				<div class='tr'><div class='td name'>Dark mode</div><input class='td' type='checkbox' name='darkMode' checked></div>
+				<div class='tr'><div class='td name'>Start on load</div><input class='td' type='checkbox' name='startOnLoad'></div>
+				<div class='tr'><div class='td name'>First split name</div><input class='td' type='text' name='firstSplitName' value='The Beginning'></div>
+				<div class='tr'><div class='td name'>New split name</div><input class='td' type='text' name='newSplitName' value='New Split'></div>
+				<div class='tr'><div class='td name'>Manual increment</div><input class='td' type='number' name='manualIncrement' value='1'></div>
+				<div class='tr'><div class='td name'>Digit padding</div><input class='td' type='number' name='zeroPadding' value='2'></div>
 			</ol>
 		</div>
 	</div>
@@ -187,7 +198,7 @@
 			}
 		};
 
-		document.querySelectorAll('ol.config input[type=checkbox]').forEach(config => {
+		document.querySelectorAll('.tab[data-title=config] input[type=checkbox]').forEach(config => {
 			if (configs.getBoolOpt(config.name) === null) {
 				configs.setBool(config.name, config.checked);
 			}
@@ -196,7 +207,7 @@
 			const updater = configs.updaters[config.name];
 			updater && updater();
 		});
-		document.querySelectorAll('ol.config input[type=checkbox]').forEach(config => {
+		document.querySelectorAll('.tab[data-title=config] input[type=checkbox]').forEach(config => {
 			config.addEventListener('change', function() {
 				configs.setBool(config.name, !!config.checked);
 				const updater = configs.updaters[config.name];
@@ -204,7 +215,7 @@
 			});
 		});
 
-		document.querySelectorAll('ol.config input[type=text]').forEach(config => {
+		document.querySelectorAll('.tab[data-title=config] input[type=text]').forEach(config => {
 			if (configs.getString(config.name) === null) {
 				configs.setString(config.name, config.value);
 			}
@@ -213,7 +224,7 @@
 			const updater = configs.updaters[config.name];
 			updater && updater();
 		});
-		document.querySelectorAll('ol.config input[type=text]').forEach(config => {
+		document.querySelectorAll('.tab[data-title=config] input[type=text]').forEach(config => {
 			config.addEventListener('change', function() {
 				configs.setString(config.name, config.value);
 				const updater = configs.updaters[config.name];
@@ -221,7 +232,7 @@
 			});
 		});
 
-		document.querySelectorAll('ol.config input[type=number]').forEach(config => {
+		document.querySelectorAll('.tab[data-title=config] input[type=number]').forEach(config => {
 			if (configs.getIntOpt(config.name) === null) {
 				configs.setInt(config.name, config.value);
 			}
@@ -230,7 +241,7 @@
 			const updater = configs.updaters[config.name];
 			updater && updater();
 		});
-		document.querySelectorAll('ol.config input[type=number]').forEach(config => {
+		document.querySelectorAll('.tab[data-title=config] input[type=number]').forEach(config => {
 			config.addEventListener('change', function() {
 				configs.setInt(config.name, config.value);
 				const updater = configs.updaters[config.name];
