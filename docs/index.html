@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
 	<link rel="stylesheet" type="text/css" href="light.theme.css">
@@ -418,7 +419,7 @@
 
 		function onkeypress(e) {
 			if (e.charCode == 32) {
-				const isTextInput = document.activeElement && document.activeElement.tagName == 'input' && document.activeElement.type == 'text';
+				const isTextInput = document.activeElement && document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'text';
 				if (!isTextInput)
 					doSplit();
 			}
