@@ -60,17 +60,6 @@
 			vertical-align: middle;
 		}
 
-		.button {
-			border: none;
-			padding: 3px;
-		}
-		.button:hover, .button:focus {
-			border: dashed 3px;
-			border-color: var(--theme-button-hover-border-color);
-			padding:  0px;
-			cursor: pointer;
-		}
-
 		#splits {
 			list-style-type: none;
 		}
@@ -110,15 +99,34 @@
 
 		button {
 			text-transform: uppercase;
+			background-color: var(--theme-button-background-color);
+			color: var(--theme-button-text-color);
+			cursor: pointer;
 		}
+		button:hover, button:focus {
+			background-color: var(--theme-button-hover-background-color);
+		}
+		.button {
+			border: var(--theme-button-like-border);
+			padding: var(--theme-button-like-padding);
+			cursor: pointer;
+		}
+		.button:hover, .button:focus {
+			border: var(--theme-button-like-hover-border);
+			padding:  var(--theme-button-like-hover-padding);
+		}
+
+
 		#copyAll {
 			vertical-align: text-bottom;
 		}
 
-		input[type=text] {
+		input[type=text], input[type=number] {
 			border: dashed 1px;
+			background-color: var(--theme-input-background-color);
+			color: var(--theme-input-text-color);
 		}
-		input[type=text]:focus {
+		input[type=text]:focus, input[type=number] {
 			border: initial;
 			padding: 3px;
 		}
@@ -132,7 +140,7 @@
 </head>
 <body>
 	<div class='tabs'>
-		<div class='tabbar'></div>
+		<div class='tabBar'></div>
 		<div class='tab active' data-title='splits'>
 			<div>Splits<img id='copyAll' title='Copy all' class='button icon' src='copy.png'></div> <ol id='splits'></ol>
 			<div id='currentSplit'><div class='name'>Current</div><div class='time'></div></div>
@@ -161,7 +169,7 @@
 	<script>
 	</script>
 	<script>
-		const tabBar = document.querySelector('.tabbar');
+		const tabBar = document.querySelector('.tabBar');
 		document.querySelectorAll('.tabs > .tab').forEach(tab => {
 			const title = tab.getAttribute('data-title')
 			const barItem = document.createElement('div');

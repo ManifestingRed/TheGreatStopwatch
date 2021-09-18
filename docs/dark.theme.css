@@ -1,5 +1,5 @@
 :root.theme-dark {
-	--theme-background-color: #282931;
+	--theme-background-color: #161b21;
 	--theme-text-color: #c9d1d9;
 
 	--theme-tabs-text-color: #f0f6fc;
@@ -9,5 +9,15 @@
 
 	--theme-splits-paused-border-color: yellow;
 
-	--theme-button-hover-border-color: lightgrey;
+	--theme-button-like-border: none;
+	--theme-button-like-padding: 2px;
+	--theme-button-like-hover-border: dashed 1px lightgrey;
+	--theme-button-like-hover-padding: 1px;
+
+	--theme-button-background-color: #21262d;
+	--theme-button-text-color: #c7d0d7;
+	--theme-button-hover-background-color: #41464d;
+
+	--theme-input-background-color: #0d1116;
+	--theme-input-text-color: #c3c3c5;
 }
