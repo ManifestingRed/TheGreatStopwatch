@@ -128,6 +128,8 @@
 			<ol class='config'>
 				<li><div class='name'>Dark mode</div><input type='checkbox' name='darkMode' checked></li>
 				<li><div class='name'>Start on load</div><input type='checkbox' name='startOnLoad'></li>
+				<li><div class='name'>First split name</div><input type='text' name='firstSplitName' value='The Beginning'></li>
+				<li><div class='name'>New split name</div><input type='text' name='newSplitName' value='New Split'></li>
 			</ol>
 		</div>
 	</div>
@@ -154,6 +156,9 @@
 		configs.getBoolOpt = name => window.localStorage.getItem(`config.${name}`);
 		configs.getBool = name => window.localStorage.getItem(`config.${name}`) === 'true';
 		configs.setBool = (name, value) => window.localStorage.setItem(`config.${name}`, !!value);
+		configs.getString = name => window.localStorage.getItem(`config.${name}`);
+		configs.setString = (name, value) => window.localStorage.setItem(`config.${name}`, value==null?null:value.toString());
+
 		configs.updaters = {
 			darkMode: () => {
 				const theme = configs.getBool('darkMode')?'theme-dark':'theme-light';
@@ -165,6 +170,7 @@
 			startOnLoad: () => {
 			}
 		};
+
 		document.querySelectorAll('ol.config input[type=checkbox]').forEach(config => {
 			if (configs.getBoolOpt(config.name) === null) {
 				configs.setBool(config.name, config.checked);
@@ -172,13 +178,30 @@
 			const value = configs.getBool(config.name);
 			config.checked = value;
 			const updater = configs.updaters[config.name];
-			updater();
+			updater && updater();
 		});
 		document.querySelectorAll('ol.config input[type=checkbox]').forEach(config => {
 			config.addEventListener('change', function() {
 				configs.setBool(config.name, !!config.checked);
 				const updater = configs.updaters[config.name];
-				updater();
+				updater && updater();
+			});
+		});
+
+		document.querySelectorAll('ol.config input[type=text]').forEach(config => {
+			if (configs.getString(config.name) === null) {
+				configs.setString(config.name, config.value);
+			}
+			const value = configs.getString(config.name);
+			config.value = value;
+			const updater = configs.updaters[config.name];
+			updater && updater();
+		});
+		document.querySelectorAll('ol.config input[type=text]').forEach(config => {
+			config.addEventListener('change', function() {
+				configs.setString(config.name, config.value);
+				const updater = configs.updaters[config.name];
+				updater && updater();
 			});
 		});
 	</script>
@@ -291,7 +314,7 @@
 			renderTotalTime();
 		}
 		function doSplit(name) {
-			const timecode = TimeCode(now, name||`new split`);
+			const timecode = TimeCode(now, name||configs.getString('newSplitName'));
 			timecodes.push(timecode);
 			const splits = document.querySelector('#splits');
 			splits.appendChild(renderSplit(timecode));
@@ -300,7 +323,7 @@
 			timecodes = [];
 			update();
 			document.querySelector('#splits').innerHTML = '';
-			doSplit('The Beginning Of Time');
+			doSplit(configs.getString('firstSplitName'));
 		}
 		function update() {
 			const n = Date.now();
