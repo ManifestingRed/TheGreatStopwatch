@@ -38,8 +38,33 @@
 		}
 	</style>
 	<style type="text/css">
+		.tab[data-title=config] .table {
+			width: 100%;
+			border-collapse: collapse;
+		}
 		.tab[data-title=config] .table .tr .td {
 			padding: 5px;
+			border-top: none 1px;
+		}
+		.tab[data-title=config] .table .tr .td.name {
+			white-space: nowrap;
+		}
+		.tab[data-title=config] .table .tr .td.name li {
+		}
+		.tab[data-title=config] .table .tr .td.name input[type=text] {
+			padding: 8px;
+		}
+		.tab[data-title=config] .table .tr .td.value {
+			width: 100%;
+		}
+		.tab[data-title=config] .table .tr:nth-child(even) {
+			background-color: var(--theme-table-even-background-color);
+		}
+		.tab[data-title=config] .table .tr:nth-child(odd) {
+			background-color: var(--theme-table-odd-background-color);
+		}
+		.tab[data-title=config] .table .tr .td.value input[type=text] {
+			width: 100%;
 		}
 	</style>
 	<style type="text/css">
@@ -74,7 +99,7 @@
 		.split .inc {
 			display: inline-block;
 		}
-		.split .name {
+		.split .label {
 			display: inline-block;
 			margin-left: 10px;
 		}
@@ -121,14 +146,16 @@
 			vertical-align: text-bottom;
 		}
 
-		input[type=text], input[type=number] {
+		input[type=text], input[type=number], textarea {
 			border: dashed 1px;
 			background-color: var(--theme-input-background-color);
 			color: var(--theme-input-text-color);
+			outline: none;
 		}
-		input[type=text]:focus, input[type=number] {
+		input[type=text]:focus:not([readonly]), input[type=number]:focus:focus:not([readonly]), textarea:focus:focus:not([readonly]) {
 			border: initial;
-			padding: 3px;
+			outline: revert;
+			padding: 2px 3px;
 		}
 		.info {
 			white-space: pre;
@@ -157,12 +184,24 @@
 		</div>
 		<div class='tab' data-title='config'>
 			<div class='table config'>
-				<div class='tr'><div class='td name'>Dark mode</div><input class='td' type='checkbox' name='darkMode' checked></div>
-				<div class='tr'><div class='td name'>Start on load</div><input class='td' type='checkbox' name='startOnLoad'></div>
-				<div class='tr'><div class='td name'>First split name</div><input class='td' type='text' name='firstSplitName' value='The Beginning'></div>
-				<div class='tr'><div class='td name'>New split name</div><input class='td' type='text' name='newSplitName' value='New Split'></div>
-				<div class='tr'><div class='td name'>Manual increment</div><input class='td' type='number' name='manualIncrement' value='1'></div>
-				<div class='tr'><div class='td name'>Digit padding</div><input class='td' type='number' name='zeroPadding' value='2'></div>
+				<div class='tr'><div class='td name'><strong>Dark mode</strong></div><div class='td value'><input type='checkbox' name='darkMode' checked></div></div>
+				<div class='tr'><div class='td name'><strong>Start on load</strong></div><div class='td value'><input type='checkbox' name='startOnLoad'></div></div>
+				<div class='tr'><div class='td name'><strong>First split name</strong></div><div class='td value'><input type='text' name='firstSplitName' value='The Beginning'></div></div>
+				<div class='tr'><div class='td name'><strong>New split name</strong></div><div class='td value'><input type='text' name='newSplitName' value='New Split'></div></div>
+				<div class='tr'><div class='td name'><strong>Manual increment</strong></div><div class='td value'><input type='number' name='manualIncrement' value='1'></div></div>
+				<div class='tr'><div class='td name'><strong>Digit padding</strong></div><div class='td value'><input type='number' name='zeroPadding' value='2'></div></div>
+				<div class='tr'>
+					<div class='td name'>
+						<div><strong>Export format</strong></div>
+						Examples
+						<div>
+							<ul style='list-style-type: none; padding: 0; margin: 0'>
+								<li><div>JSON</div><textarea type="text" readonly>${JSON.stringify(_.split)}</textarea></li>
+								<li><div>Youtube</div><textarea type="text" readonly>${_.split.timeFormatted} ${_.split.label}</textarea></li>
+							</ul>
+						</div>
+					</div>
+					<div class='td value'><input type='text' name='exportFormat' value='${JSON.stringify(_.split)}'></div></div>
 			</ol>
 		</div>
 	</div>
@@ -207,7 +246,7 @@
 			}
 		};
 
-		document.querySelectorAll('.tab[data-title=config] input[type=checkbox]').forEach(config => {
+		document.querySelectorAll('.tab[data-title=config] .td.value input[type=checkbox]').forEach(config => {
 			if (configs.getBoolOpt(config.name) === null) {
 				configs.setBool(config.name, config.checked);
 			}
@@ -216,7 +255,7 @@
 			const updater = configs.updaters[config.name];
 			updater && updater();
 		});
-		document.querySelectorAll('.tab[data-title=config] input[type=checkbox]').forEach(config => {
+		document.querySelectorAll('.tab[data-title=config] .td.value input[type=checkbox]').forEach(config => {
 			config.addEventListener('change', function() {
 				configs.setBool(config.name, !!config.checked);
 				const updater = configs.updaters[config.name];
@@ -224,7 +263,7 @@
 			});
 		});
 
-		document.querySelectorAll('.tab[data-title=config] input[type=text]').forEach(config => {
+		document.querySelectorAll('.tab[data-title=config] .td.value input[type=text]').forEach(config => {
 			if (configs.getString(config.name) === null) {
 				configs.setString(config.name, config.value);
 			}
@@ -233,7 +272,7 @@
 			const updater = configs.updaters[config.name];
 			updater && updater();
 		});
-		document.querySelectorAll('.tab[data-title=config] input[type=text]').forEach(config => {
+		document.querySelectorAll('.tab[data-title=config] .td.value input[type=text]').forEach(config => {
 			config.addEventListener('change', function() {
 				configs.setString(config.name, config.value);
 				const updater = configs.updaters[config.name];
@@ -241,7 +280,7 @@
 			});
 		});
 
-		document.querySelectorAll('.tab[data-title=config] input[type=number]').forEach(config => {
+		document.querySelectorAll('.tab[data-title=config] .td.value input[type=number]').forEach(config => {
 			if (configs.getIntOpt(config.name) === null) {
 				configs.setInt(config.name, config.value);
 			}
@@ -250,7 +289,7 @@
 			const updater = configs.updaters[config.name];
 			updater && updater();
 		});
-		document.querySelectorAll('.tab[data-title=config] input[type=number]').forEach(config => {
+		document.querySelectorAll('.tab[data-title=config] .td.value input[type=number]').forEach(config => {
 			config.addEventListener('change', function() {
 				configs.setInt(config.name, config.value);
 				const updater = configs.updaters[config.name];
@@ -259,8 +298,7 @@
 		});
 	</script>
 	<script>
-		function timeBetween(start, end) {
-			var delta = (end - start);
+		function durationParts(delta) {
 			var millis = Math.floor(delta%1000);
 			var seconds = Math.floor(delta/1000)%60;
 			var minutes = Math.floor((delta/(60*1000))%60);
@@ -276,12 +314,12 @@
 		}
 		function formatTimeDelta(from, to) {
 			const pad = x => x.toString().padStart(configs.getInt('zeroPadding'), '0');
-			const delta = timeBetween(from, to);
+			const delta = durationParts(to - from);
 			const formatted = `${pad(delta.days)}:${pad(delta.hours)}:${pad(delta.minutes)}:${pad(delta.seconds)}`;
 			return formatted;
 		}
-		function TimeCode(time, name) {
-			return { id:(++timecodeIdCounter) , time, name };
+		function TimeCode(timestamp, label) {
+			return { id:(++timecodeIdCounter) , timestamp, label };
 		}
 
 		let timer = null;
@@ -292,42 +330,46 @@
 		let timecodes = [];
 
 		function renderCurrentSplit() {
-			document.querySelector('#currentSplit .time').textContent = formatTimeDelta(timecodes[timecodes.length-1].time, now);
+			document.querySelector('#currentSplit .time').textContent = formatTimeDelta(timecodes[timecodes.length-1].timestamp, now);
 		}
 		function renderTotalTime() {
-			document.querySelector('#totalTime .time').textContent = formatTimeDelta(timecodes[0].time, now);
+			document.querySelector('#totalTime .time').textContent = formatTimeDelta(timecodes[0].timestamp, now);
 		}
 		function renderTimeCodeClipboardItem(timecode) {
+			const template = configs.getString('exportFormat');
 			const payload = {
-				...timecode,
-				formattedTime: formatTimeDelta(timecodes[0].time, timecode.time) 
+				split: {
+					label: timecode.label,
+					timeStamp: timecode.timestamp,
+					timeParts: durationParts(timecode.timestamp - timecodes[0].timestamp),
+					timeFormatted: formatTimeDelta(timecodes[0].timestamp, timecode.timestamp)
+				}
 			};
-			return payload;
+			const funcBody = `return \`${template.replaceAll('`', '\\`')}\`;`
+			const render = new Function('_', funcBody);
+			return render(payload).trim();
 		}
 		function onCopyAll() {
 			const rendered = timecodes.map(x => renderTimeCodeClipboardItem(x));
-			const payload = {
-				splits: rendered
-			};
-			navigator.clipboard.writeText(JSON.stringify(payload));
+			navigator.clipboard.writeText(rendered.join('\n'));
 		}
 		function onSplitNameChange(e, id) {
 			var index = timecodes.findIndex(x => x.id === id);
 			const timecode = timecodes[index];
-			timecode.name = e.currentTarget.value;
+			timecode.label = e.currentTarget.value;
 		}
 		function onSplitTimeInc(e, id, inc) {
 			var index = timecodes.findIndex(x => x.id === id);
 			const timecode = timecodes[index];
-			timecode.time += inc;
+			timecode.timestamp += inc;
 			var elem = document.querySelector(`#splits > #split-${id} .time`);
-			elem.textContent = formatTimeDelta(timecodes[0].time, timecode.time);
+			elem.textContent = formatTimeDelta(timecodes[0].timestamp, timecode.timestamp);
 		}
 		function onSplitCopy(id) {
 			var index = timecodes.findIndex(x => x.id === id);
 			const timecode = timecodes[index];
 			const payload = renderTimeCodeClipboardItem(timecode);
-			navigator.clipboard.writeText(JSON.stringify(payload));
+			navigator.clipboard.writeText(payload);
 		}
 		function onSplitDelete(id) {
 			var index = timecodes.findIndex(x => x.id === id);
@@ -350,7 +392,7 @@
 
 			const splitTime = document.createElement('div');
 			splitTime.className = 'time';
-			splitTime.textContent = formatTimeDelta(timecodes[0].time, timecode.time);
+			splitTime.textContent = formatTimeDelta(timecodes[0].timestamp, timecode.timestamp);
 			split.appendChild(splitTime);
 
 			const splitTimeInc = document.createElement('div');
@@ -360,12 +402,12 @@
 			if (timecode === timecodes[0]) splitTimeInc.style.visibility = 'hidden';
 			split.appendChild(splitTimeInc);
 
-			const splitName = document.createElement('input');
-			splitName.type = 'text';
-			splitName.className = 'name';
-			splitName.value = timecode.name;
-			splitName.addEventListener('change', (e) => onSplitNameChange(e, timecode.id));
-			split.appendChild(splitName);
+			const splitLabel = document.createElement('input');
+			splitLabel.type = 'text';
+			splitLabel.className = 'label';
+			splitLabel.value = timecode.label;
+			splitLabel.addEventListener('change', (e) => onSplitNameChange(e, timecode.id));
+			split.appendChild(splitLabel);
 
 			const copyButton = document.createElement('img');
 			copyButton.className = 'button icon copy';
