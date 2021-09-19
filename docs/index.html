@@ -185,12 +185,54 @@
 			return { id:(++timecodeIdCounter) , timestamp, label };
 		}
 
+		const proxies = (() => {
+			const fac = {};
+			let _dirty = false;
+			fac.dirty = d => {
+				if (d && fac.onDirty) {
+					fac.onDirty();
+				}
+				if (d != null) _dirty = d;
+				return _dirty;
+			};
+			fac.create = target => {
+				Object.keys(target)
+					.filter(p => typeof(target[p]) === 'object')
+					.forEach(p => target[p] = fac.create(target[p]));
+				return new Proxy(target, {
+					set: (o,p,v) => {
+						if (typeof(v) === 'object')
+							v = fac.create(v);
+						o[p] = v;
+						fac.dirty(true);
+						return true;
+					},
+					deleteProperty: (o,p) => {
+						delete o[p];
+						fac.dirty(true);
+						return true;
+					}
+				});
+			};
+			return fac;
+		})();
+		(() => {
+			let debounceTimeout;
+			proxies.onDirty = () => {
+				if (!debounceTimeout)
+					debounceTimeout = setTimeout(() => {
+						debounceTimeout = null;
+						window.localStorage.setItem('data.timecodes', JSON.stringify(timecodes));
+					});
+			};
+		})();
+
 		let timer = null;
 		let fullPrecisionPreviousTime = Date.now();
 		let fullPrecisionCurrentTime = Date.now();
 		let now = Date.now();
 		let timecodeIdCounter = 0;
-		let timecodes = [];
+		let timecodes = proxies.create((() => { try { return JSON.parse(window.localStorage.getItem('data.timecodes')) || []; } catch (e) { return []; } })());
 
 		function renderCurrentSplit() {
 			document.querySelector('#currentSplit .time').textContent = formatTimeDelta(timecodes[timecodes.length-1].timestamp, now);
@@ -240,6 +282,7 @@
 		function onSplitDelete(id) {
 			var index = timecodes.findIndex(x => x.id === id);
 			timecodes.splice(index, 1);
+			// window.localStorage.setItem('data.timecodes', JSON.stringify(timecodes));
 
 			var split = document.querySelector(`#splits > #split-${id}`);
 			split.remove();
@@ -311,11 +354,18 @@
 		function doSplit(name) {
 			const timecode = TimeCode(now, name||configs.getString('newSplitName'));
 			timecodes.push(timecode);
+			// window.localStorage.setItem('data.timecodes', JSON.stringify(timecodes));
 			const splits = document.querySelector('#splits');
 			splits.appendChild(renderSplit(timecode));
 		}
+		function doRenderAllSplits() {
+			const splits = document.querySelector('#splits');
+			splits.innerHTML = '';
+			timecodes.forEach(t => splits.appendChild(renderSplit(t)));
+		}
 		function doReset() {
-			timecodes = [];
+			timecodes = proxies.create([]);
+			window.localStorage.setItem('data.timecodes', JSON.stringify(timecodes));
 			update();
 			document.querySelector('#splits').innerHTML = '';
 			doSplit(configs.getString('firstSplitName'));
@@ -370,7 +420,10 @@
 			});
 		});
 
-		doReset();
+		if (!timecodes.length)
+			doReset();
+		else
+			doRenderAllSplits();
 		doPause();
 		if (!configs.getBool('startOnLoad'))
 			doPause();
