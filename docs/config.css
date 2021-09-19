@@ -1,0 +1,35 @@
+.tab[data-title=config] .table {
+	width: 100%;
+	border-collapse: collapse;
+}
+.tab[data-title=config] .table .tr .td {
+	padding: 5px;
+	border-top: none 1px;
+}
+.tab[data-title=config] .table .tr .td.name {
+	white-space: nowrap;
+}
+.tab[data-title=config] .table .tr .td.name li {
+}
+.tab[data-title=config] .table .tr .td.name input[type=text] {
+	padding: 8px;
+}
+.tab[data-title=config] .table .tr .td.value {
+	width: 100%;
+}
+.tab[data-title=config] .table .tr:nth-child(even) {
+	background-color: var(--theme-table-even-background-color);
+}
+.tab[data-title=config] .table .tr:nth-child(odd) {
+	background-color: var(--theme-table-odd-background-color);
+}
+.tab[data-title=config] .table .tr .td.value input[type=text] {
+	width: 100%;
+}
+
+.tab[data-title=config] .table.dangerzone .tr:nth-child(even) {
+	background-color: #a71818c7;
+}
+.tab[data-title=config] .table.dangerzone .tr:nth-child(odd) {
+	background-color: #791919a6;
+}
