@@ -1,12 +1,30 @@
-const configs = {};
-configs.getBoolOpt = name => window.localStorage.getItem(`config.${name}`);
-configs.getBool = name => window.localStorage.getItem(`config.${name}`) === 'true';
-configs.setBool = (name, value) => window.localStorage.setItem(`config.${name}`, !!value);
-configs.getString = name => window.localStorage.getItem(`config.${name}`);
-configs.setString = (name, value) => window.localStorage.setItem(`config.${name}`, value==null?null:value.toString());
-configs.getIntOpt = name => window.localStorage.getItem(`config.${name}`);
-configs.getInt = name => parseInt(window.localStorage.getItem(`config.${name}`));
-configs.setInt = (name, value) => window.localStorage.setItem(`config.${name}`, parseInt(value));
+const Config = ((configName) => {
+	const c = {};
+	c.prefix = () => `${Config.localStorageDomain}.${configName}`;
+	c.getBoolOpt = name => window.localStorage.getItem(`${c.prefix()}.${name}`);
+	c.getBool = name => window.localStorage.getItem(`${c.prefix()}.${name}`) === 'true';
+	c.setBool = (name, value) => window.localStorage.setItem(`${c.prefix()}.${name}`, !!value);
+	c.getString = name => window.localStorage.getItem(`${c.prefix()}.${name}`);
+	c.setString = (name, value) => window.localStorage.setItem(`${c.prefix()}.${name}`, value==null?null:value.toString());
+	c.getIntOpt = name => window.localStorage.getItem(`${c.prefix()}.${name}`);
+	c.getInt = name => parseInt(window.localStorage.getItem(`${c.prefix()}.${name}`));
+	c.setInt = (name, value) => window.localStorage.setItem(`${c.prefix()}.${name}`, parseInt(value));
+	c.clear = () => {
+		const keys = [];
+		for (let i = 0; i < window.localStorage.length; ++i) {
+			const key = window.localStorage.key(i);
+			if (key.startsWith(c.prefix()))
+				keys.push(key);
+		}
+		keys.forEach(x => window.localStorage.removeItem(x));
+	}
+	Config.all.push(c);
+	return c;
+});
+Config.all = [];
+Config.clearAll = () => Config.all.forEach(x => x.clear());
+Config.localStorageDomain = window.location.toString();
+const configs = Config('config');
 
 configs.updaters = {
 	darkMode: () => {
@@ -22,7 +40,7 @@ configs.updaters = {
 		if (!window.confirm('Never look back.'))
 			return;
 		const peaceOfMind = configs.getBool('peaceOfMind');
-		window.localStorage.clear();
+		Config.clearAll();
 		if (peaceOfMind)
 			window.location.reload();
 	}

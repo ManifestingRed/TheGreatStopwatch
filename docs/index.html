@@ -218,7 +218,9 @@
 			return fac;
 		})();
 
-		const previousState = (() => { try { return JSON.parse(window.localStorage.getItem('data')) || {}; } catch (e) { return {}; } })();
+		const storageData = Config('app');
+
+		const previousState = (() => { try { return JSON.parse(storageData.getString('state')) || {}; } catch (e) { return {}; } })();
 
 		let timer = null;
 		let now = Date.now();
@@ -239,7 +241,7 @@
 					debounceTimeout = setTimeout(() => {
 						debounceTimeout = null;
 						if (configs.getBool('autosave'))
-							window.localStorage.setItem('data', JSON.stringify(state));
+							storageData.setString('state', JSON.stringify(state));
 					});
 			};
 		})();
