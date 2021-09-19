@@ -142,8 +142,10 @@
 							</ul>
 						</div>
 					</div>
-					<div class='td value'><input type='text' name='exportFormat' value='${JSON.stringify(_.split)}'></div></div>
+					<div class='td value'><input type='text' name='exportFormat' value='${JSON.stringify(_.split)}'></div>
 				</div>
+				<div class='tr'><div class='td name'><strong>Link template</strong></div><div class='td value'><input type='text' name='linkTemplate' value='https://www.youtube.com/myvideo#t=${_.split.timeParts.minutes}m${_.split.timeParts.seconds}'></div></div>
+			</div>
 			<hr>
 			<div style='position: relative'>
 				<div>⛔️&nbsp;Consider your actions carefully&nbsp;⛔️</div>
@@ -151,7 +153,7 @@
 					<div class='tr'><div class='td name'><strong>Clear local storage</strong><br>Do you really want to do it? Reload afterward and let go of all your worries.</div><div class='td value'><button name='clearLocalStorage'>Clear Now</button></div></div>
 					<div class='tr'><div class='td name'><strong>Always reload after clearing</strong><br>Offers peace of mind; not everyone is ready for it.</div><div class='td value'><input type='checkbox' name='peaceOfMind'></div></div>
 				</div>
-				</div>
+			</div>
 		</div>
 	</div>
 	<script>
@@ -196,8 +198,7 @@
 		function renderTotalTime() {
 			document.querySelector('#totalTime .time').textContent = formatTimeDelta(timecodes[0].timestamp, now);
 		}
-		function renderTimeCodeClipboardItem(timecode) {
-			const template = configs.getString('exportFormat');
+		function renderTimecodeTemplate(template, timecode) {
 			const payload = {
 				split: {
 					label: timecode.label,
@@ -209,6 +210,10 @@
 			const funcBody = `return \`${template.replaceAll('`', '\\`')}\`;`
 			const render = new Function('_', funcBody);
 			return render(payload).trim();
+		}
+		function renderTimeCodeClipboardItem(timecode) {
+			const template = configs.getString('exportFormat');
+			return renderTimecodeTemplate(template, timecode);
 		}
 		function onCopyAll() {
 			const rendered = timecodes.map(x => renderTimeCodeClipboardItem(x));
@@ -276,6 +281,18 @@
 			copyButton.title = 'Copy';
 			copyButton.addEventListener('click', () => onSplitCopy(timecode.id));
 			split.appendChild(copyButton);
+
+			const link = document.createElement('a');
+			copyButton.className = 'button icon copy';
+			link.className = 'link';
+			link.href = '#';
+			link.innerHTML = '<img class="button icon link" src="link.png"/>'
+			link.addEventListener('mouseover', () => {
+				const parts = durationParts(timecode.timestamp - timecodes[0].timestamp);
+				const t = `t=${parts.minutes}m${parts.seconds}s`;
+				link.href = renderTimecodeTemplate(configs.getString('linkTemplate'), timecode);
+			});
+			split.appendChild(link);
 
 			if (timecode !== timecodes[0]) {
 				const deleteButton = document.createElement('img');
