@@ -66,6 +66,13 @@
 		.tab[data-title=config] .table .tr .td.value input[type=text] {
 			width: 100%;
 		}
+
+		.tab[data-title=config] .table.dangerzone .tr:nth-child(even) {
+			background-color: #a71818c7;
+		}
+		.tab[data-title=config] .table.dangerzone .tr:nth-child(odd) {
+			background-color: #791919a6;
+		}
 	</style>
 	<style type="text/css">
 		body {
@@ -204,7 +211,15 @@
 						</div>
 					</div>
 					<div class='td value'><input type='text' name='exportFormat' value='${JSON.stringify(_.split)}'></div></div>
-			</ol>
+				</div>
+			<hr>
+			<div style='position: relative'>
+				<div>⛔️&nbsp;Consider your actions carefully&nbsp;⛔️</div>
+				<div class='table config dangerzone'>
+					<div class='tr'><div class='td name'><strong>Clear local storage</strong><br>Do you really want to do it? Reload afterward and let go of all your worries.</div><div class='td value'><button name='clearLocalStorage'>Clear Now</button></div></div>
+					<div class='tr'><div class='td name'><strong>Always reload after clearing</strong><br>Offers peace of mind; not everyone is ready for it.</div><div class='td value'><input type='checkbox' name='peaceOfMind'></div></div>
+				</div>
+				</div>
 		</div>
 	</div>
 	<script>
@@ -245,6 +260,14 @@
 				document.documentElement.classList.add(theme);
 			},
 			startOnLoad: () => {
+			},
+			clearLocalStorage: () => {
+				if (!window.confirm('Never look back.'))
+					return;
+				const peaceOfMind = configs.getBool('peaceOfMind');
+				window.localStorage.clear();
+				if (peaceOfMind)
+					window.location.reload();
 			}
 		};
 
@@ -294,6 +317,12 @@
 		document.querySelectorAll('.tab[data-title=config] .td.value input[type=number]').forEach(config => {
 			config.addEventListener('change', function() {
 				configs.setInt(config.name, config.value);
+				const updater = configs.updaters[config.name];
+				updater && updater();
+			});
+		});
+		document.querySelectorAll('.tab[data-title=config] .td.value button').forEach(config => {
+			config.addEventListener('click', function() {
 				const updater = configs.updaters[config.name];
 				updater && updater();
 			});
