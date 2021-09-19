@@ -127,6 +127,7 @@
 			<div class='table config'>
 				<div class='tr'><div class='td name'><strong>Dark mode</strong></div><div class='td value'><input type='checkbox' name='darkMode' checked></div></div>
 				<div class='tr'><div class='td name'><strong>Start on load</strong></div><div class='td value'><input type='checkbox' name='startOnLoad'></div></div>
+				<div class='tr'><div class='td name'><strong>Autosave</strong></div><div class='td value'><input type='checkbox' name='autosave' checked></div></div>
 				<div class='tr'><div class='td name'><strong>First split name</strong></div><div class='td value'><input type='text' name='firstSplitName' value='The Beginning'></div></div>
 				<div class='tr'><div class='td name'><strong>New split name</strong></div><div class='td value'><input type='text' name='newSplitName' value='New Split'></div></div>
 				<div class='tr'><div class='td name'><strong>Manual increment</strong></div><div class='td value'><input type='number' name='manualIncrement' value='1'></div></div>
@@ -182,7 +183,7 @@
 			return formatted;
 		}
 		function TimeCode(timestamp, label) {
-			return { id:(++timecodeIdCounter) , timestamp, label };
+			return { id:(++state.timecodeIdCounter) , timestamp, label };
 		}
 
 		const proxies = (() => {
@@ -216,37 +217,46 @@
 			};
 			return fac;
 		})();
+
+		const previousState = (() => { try { return JSON.parse(window.localStorage.getItem('data')) || {}; } catch (e) { return {}; } })();
+
+		let timer = null;
+		let now = Date.now();
+
+		const state = proxies.create({
+			// defaults
+			timecodeIdCounter: 0,
+			timecodes: [],
+			fullPrecisionPreviousTime: Date.now(),
+			fullPrecisionCurrentTime: Date.now(),
+			// override with loaded state
+			...previousState
+		});
 		(() => {
 			let debounceTimeout;
 			proxies.onDirty = () => {
 				if (!debounceTimeout)
 					debounceTimeout = setTimeout(() => {
 						debounceTimeout = null;
-						window.localStorage.setItem('data.timecodes', JSON.stringify(timecodes));
+						if (configs.getBool('autosave'))
+							window.localStorage.setItem('data', JSON.stringify(state));
 					});
 			};
 		})();
 
-		let timer = null;
-		let fullPrecisionPreviousTime = Date.now();
-		let fullPrecisionCurrentTime = Date.now();
-		let now = Date.now();
-		let timecodeIdCounter = 0;
-		let timecodes = proxies.create((() => { try { return JSON.parse(window.localStorage.getItem('data.timecodes')) || []; } catch (e) { return []; } })());
-
 		function renderCurrentSplit() {
-			document.querySelector('#currentSplit .time').textContent = formatTimeDelta(timecodes[timecodes.length-1].timestamp, now);
+			document.querySelector('#currentSplit .time').textContent = formatTimeDelta(state.timecodes[state.timecodes.length-1].timestamp, now);
 		}
 		function renderTotalTime() {
-			document.querySelector('#totalTime .time').textContent = formatTimeDelta(timecodes[0].timestamp, now);
+			document.querySelector('#totalTime .time').textContent = formatTimeDelta(state.timecodes[0].timestamp, now);
 		}
 		function renderTimecodeTemplate(template, timecode) {
 			const payload = {
 				split: {
 					label: timecode.label,
 					timeStamp: timecode.timestamp,
-					timeParts: durationParts(timecode.timestamp - timecodes[0].timestamp),
-					timeFormatted: formatTimeDelta(timecodes[0].timestamp, timecode.timestamp)
+					timeParts: durationParts(timecode.timestamp - state.timecodes[0].timestamp),
+					timeFormatted: formatTimeDelta(state.timecodes[0].timestamp, timecode.timestamp)
 				}
 			};
 			const funcBody = `return \`${template.replaceAll('`', '\\`')}\`;`
@@ -258,31 +268,30 @@
 			return renderTimecodeTemplate(template, timecode);
 		}
 		function onCopyAll() {
-			const rendered = timecodes.map(x => renderTimeCodeClipboardItem(x));
+			const rendered = state.timecodes.map(x => renderTimeCodeClipboardItem(x));
 			navigator.clipboard.writeText(rendered.join('\n'));
 		}
 		function onSplitNameChange(e, id) {
-			var index = timecodes.findIndex(x => x.id === id);
-			const timecode = timecodes[index];
+			var index = state.timecodes.findIndex(x => x.id === id);
+			const timecode = state.timecodes[index];
 			timecode.label = e.currentTarget.value;
 		}
 		function onSplitTimeInc(e, id, inc) {
-			var index = timecodes.findIndex(x => x.id === id);
-			const timecode = timecodes[index];
+			var index = state.timecodes.findIndex(x => x.id === id);
+			const timecode = state.timecodes[index];
 			timecode.timestamp += inc;
 			var elem = document.querySelector(`#splits > #split-${id} .time`);
-			elem.textContent = formatTimeDelta(timecodes[0].timestamp, timecode.timestamp);
+			elem.textContent = formatTimeDelta(state.timecodes[0].timestamp, timecode.timestamp);
 		}
 		function onSplitCopy(id) {
-			var index = timecodes.findIndex(x => x.id === id);
-			const timecode = timecodes[index];
+			var index = state.timecodes.findIndex(x => x.id === id);
+			const timecode = state.timecodes[index];
 			const payload = renderTimeCodeClipboardItem(timecode);
 			navigator.clipboard.writeText(payload);
 		}
 		function onSplitDelete(id) {
-			var index = timecodes.findIndex(x => x.id === id);
-			timecodes.splice(index, 1);
-			// window.localStorage.setItem('data.timecodes', JSON.stringify(timecodes));
+			var index = state.timecodes.findIndex(x => x.id === id);
+			state.timecodes.splice(index, 1);
 
 			var split = document.querySelector(`#splits > #split-${id}`);
 			split.remove();
@@ -296,19 +305,19 @@
 			splitTimeDec.className = 'button dec';
 			splitTimeDec.textContent = '-';
 			splitTimeDec.addEventListener('click', (e) => onSplitTimeInc(e, timecode.id, -1000*configs.getInt('manualIncrement')));
-			if (timecode === timecodes[0]) splitTimeDec.style.visibility = 'hidden';
+			if (timecode === state.timecodes[0]) splitTimeDec.style.visibility = 'hidden';
 			split.appendChild(splitTimeDec);
 
 			const splitTime = document.createElement('div');
 			splitTime.className = 'time';
-			splitTime.textContent = formatTimeDelta(timecodes[0].timestamp, timecode.timestamp);
+			splitTime.textContent = formatTimeDelta(state.timecodes[0].timestamp, timecode.timestamp);
 			split.appendChild(splitTime);
 
 			const splitTimeInc = document.createElement('div');
 			splitTimeInc.className = 'button inc';
 			splitTimeInc.textContent = '+';
 			splitTimeInc.addEventListener('click', (e) => onSplitTimeInc(e, timecode.id, 1000*configs.getInt('manualIncrement')));
-			if (timecode === timecodes[0]) splitTimeInc.style.visibility = 'hidden';
+			if (timecode === state.timecodes[0]) splitTimeInc.style.visibility = 'hidden';
 			split.appendChild(splitTimeInc);
 
 			const splitLabel = document.createElement('input');
@@ -331,13 +340,13 @@
 			link.href = '#';
 			link.innerHTML = '<img class="button icon link" src="link.png"/>'
 			link.addEventListener('mouseover', () => {
-				const parts = durationParts(timecode.timestamp - timecodes[0].timestamp);
+				const parts = durationParts(timecode.timestamp - state.timecodes[0].timestamp);
 				const t = `t=${parts.minutes}m${parts.seconds}s`;
 				link.href = renderTimecodeTemplate(configs.getString('linkTemplate'), timecode);
 			});
 			split.appendChild(link);
 
-			if (timecode !== timecodes[0]) {
+			if (timecode !== state.timecodes[0]) {
 				const deleteButton = document.createElement('img');
 				deleteButton.className = 'button icon delete';
 				deleteButton.src = 'delete.png';
@@ -353,29 +362,27 @@
 		}
 		function doSplit(name) {
 			const timecode = TimeCode(now, name||configs.getString('newSplitName'));
-			timecodes.push(timecode);
-			// window.localStorage.setItem('data.timecodes', JSON.stringify(timecodes));
+			state.timecodes.push(timecode);
 			const splits = document.querySelector('#splits');
 			splits.appendChild(renderSplit(timecode));
 		}
 		function doRenderAllSplits() {
 			const splits = document.querySelector('#splits');
 			splits.innerHTML = '';
-			timecodes.forEach(t => splits.appendChild(renderSplit(t)));
+			state.timecodes.forEach(t => splits.appendChild(renderSplit(t)));
 		}
 		function doReset() {
-			timecodes = proxies.create([]);
-			window.localStorage.setItem('data.timecodes', JSON.stringify(timecodes));
+			state.timecodes = state.timecodes = proxies.create([]);
 			update();
 			document.querySelector('#splits').innerHTML = '';
 			doSplit(configs.getString('firstSplitName'));
 		}
 		function update() {
 			const n = Date.now();
-			const delta = n - fullPrecisionPreviousTime;
-			fullPrecisionPreviousTime = n;
-			fullPrecisionCurrentTime += delta;
-			now = Math.floor(fullPrecisionCurrentTime/1000)*1000;
+			const delta = n - state.fullPrecisionPreviousTime;
+			state.fullPrecisionPreviousTime = n;
+			state.fullPrecisionCurrentTime += delta;
+			now = Math.floor(state.fullPrecisionCurrentTime/1000)*1000;
 		}
 		function doPause() {
 			if (timer) {
@@ -384,7 +391,7 @@
 				document.body.classList.add('paused');
 				document.querySelector('button[name=pause]').textContent = 'unpause';
 			} else {
-				fullPrecisionPreviousTime = Date.now();
+				state.fullPrecisionPreviousTime = Date.now();
 				timer = setInterval(function() {
 					update();
 					render();
@@ -420,7 +427,7 @@
 			});
 		});
 
-		if (!timecodes.length)
+		if (!state.timecodes.length)
 			doReset();
 		else
 			doRenderAllSplits();
