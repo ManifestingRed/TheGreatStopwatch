@@ -16,6 +16,7 @@
 }
 .tab[data-title=config] .table .tr .td.value {
 	width: 100%;
+	display: flex;
 }
 .tab[data-title=config] .table .tr:nth-child(even) {
 	background-color: var(--theme-table-even-background-color);
@@ -24,7 +25,7 @@
 	background-color: var(--theme-table-odd-background-color);
 }
 .tab[data-title=config] .table .tr .td.value input[type=text] {
-	width: 100%;
+	flex: 1;
 }
 
 .tab[data-title=config] .table.dangerzone .tr:nth-child(even) {

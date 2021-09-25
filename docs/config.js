@@ -9,14 +9,18 @@ const Config = ((configName) => {
 	c.getIntOpt = name => window.localStorage.getItem(`${c.prefix()}.${name}`);
 	c.getInt = name => parseInt(window.localStorage.getItem(`${c.prefix()}.${name}`));
 	c.setInt = (name, value) => window.localStorage.setItem(`${c.prefix()}.${name}`, parseInt(value));
-	c.clear = () => {
+	c.keys = () => {
 		const keys = [];
+		const prefix = c.prefix();
 		for (let i = 0; i < window.localStorage.length; ++i) {
 			const key = window.localStorage.key(i);
-			if (key.startsWith(c.prefix()))
-				keys.push(key);
+			if (key.startsWith(prefix))
+				keys.push(key.substring(prefix.length+1));
 		}
-		keys.forEach(x => window.localStorage.removeItem(x));
+		return keys;
+	}
+	c.clear = () => {
+		c.keys().forEach(x => window.localStorage.removeItem(x));
 	}
 	Config.all.push(c);
 	return c;

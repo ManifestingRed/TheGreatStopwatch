@@ -110,7 +110,9 @@
 	<div class='tabs'>
 		<div class='tabBar'></div>
 		<div class='tab active' data-title='splits'>
-			<div>Splits<img id='copyAll' title='Copy all' class='button icon' src='copy.png'></div> <ol id='splits'></ol>
+			<div>Splits</div>
+			<div>Copy all<span id='copyAll'></span></div>
+			<ol id='splits'></ol>
 			<div id='currentSplit'><div class='name'>Current</div><div class='time'></div></div>
 			<div id='totalTime'><div class='name'>Total</div><div class='time'></div></div>
 			<button name='reset'>reset</button>
@@ -121,7 +123,7 @@
 			<div class='info'><strong>Info</strong>
 • Click descriptions to edit.
 • Global shortcut 'spacebar' to split (when not editing description).
-• <img id='copyAll' class='button icon' src='copy.png'> copies to clipboard.</div>
+• <img class='button icon' src='copy.png'> copies to clipboard.</div>
 		</div>
 		<div class='tab' data-title='config'>
 			<div class='table config'>
@@ -143,9 +145,10 @@
 							</ul>
 						</div>
 					</div>
-					<div class='td value'><input type='text' name='exportFormat' value='${JSON.stringify(_.split)}'></div>
+					<div class='td value'>Enabled<input type='checkbox' name='export.1.enabled' checked>Name<input type='text' name='export.1.label' value='JSON'>Format<input type='text' name='export.1.format' value='${JSON.stringify(_.split)}'></div>
+					<div class='td value'>Enabled<input type='checkbox' name='export.2.enabled' checked>Name<input type='text' name='export.2.label' value='Youtube'>Format<input type='text' name='export.2.format' value='https://www.youtube.com/myvideo#t=${_.split.timeParts.minutes}m${_.split.timeParts.seconds}'></div>
+					<div class='td value'>Enabled<input type='checkbox' name='export.3.enabled' checked>Name<input type='text' name='export.3.label' value='Markdown'>Format<input type='text' name='export.3.format' value='[_.split.timeFormatted](https://www.youtube.com/myvideo#t=${_.split.timeParts.minutes}m${_.split.timeParts.seconds} ${_.split.label})'></div>
 				</div>
-				<div class='tr'><div class='td name'><strong>Link template</strong></div><div class='td value'><input type='text' name='linkTemplate' value='https://www.youtube.com/myvideo#t=${_.split.timeParts.minutes}m${_.split.timeParts.seconds}'></div></div>
 			</div>
 			<hr>
 			<div style='position: relative'>
@@ -265,12 +268,11 @@
 			const render = new Function('_', funcBody);
 			return render(payload).trim();
 		}
-		function renderTimeCodeClipboardItem(timecode) {
-			const template = configs.getString('exportFormat');
-			return renderTimecodeTemplate(template, timecode);
+		function renderTimeCodeClipboardItem(timecode, format) {
+			return renderTimecodeTemplate(format, timecode);
 		}
-		function onCopyAll() {
-			const rendered = state.timecodes.map(x => renderTimeCodeClipboardItem(x));
+		function onCopyAll(format) {
+			const rendered = state.timecodes.map(x => renderTimeCodeClipboardItem(x, format));
 			navigator.clipboard.writeText(rendered.join('\n'));
 		}
 		function onSplitNameChange(e, id) {
@@ -285,10 +287,10 @@
 			var elem = document.querySelector(`#splits > #split-${id} .time`);
 			elem.textContent = formatTimeDelta(state.timecodes[0].timestamp, timecode.timestamp);
 		}
-		function onSplitCopy(id) {
+		function onSplitCopy(id, format) {
 			var index = state.timecodes.findIndex(x => x.id === id);
 			const timecode = state.timecodes[index];
-			const payload = renderTimeCodeClipboardItem(timecode);
+			const payload = renderTimeCodeClipboardItem(timecode, format);
 			navigator.clipboard.writeText(payload);
 		}
 		function onSplitDelete(id) {
@@ -297,6 +299,21 @@
 
 			var split = document.querySelector(`#splits > #split-${id}`);
 			split.remove();
+		}
+		function makeExportButtons(onClick) {
+			return configs.keys().filter(x => x.startsWith("export.") && x.endsWith("enabled"))
+				.filter(x => configs.getBool(x))
+				.map(x => x.replaceAll(/export\.([^.]+)\..*/g, '$1'))
+				.map(index => {
+					const exportButton = document.createElement('button');
+					exportButton.innerHTML = '<img><span>';
+					exportButton.querySelector('img').className = 'icon copy';
+					exportButton.querySelector('img').src = 'copy.png';
+					exportButton.querySelector('img').title = `Export ${configs.getString(`export.${index}.label`)}`;
+					exportButton.querySelector('span').textContent = configs.getString(`export.${index}.label`);
+					exportButton.addEventListener('click', () => onClick(configs.getString(`export.${index}.format`)));
+					return exportButton;
+			});
 		}
 		function renderSplit(timecode) {
 			const split = document.createElement('div');
@@ -329,24 +346,9 @@
 			splitLabel.addEventListener('change', (e) => onSplitNameChange(e, timecode.id));
 			split.appendChild(splitLabel);
 
-			const copyButton = document.createElement('img');
-			copyButton.className = 'button icon copy';
-			copyButton.src = 'copy.png';
-			copyButton.title = 'Copy';
-			copyButton.addEventListener('click', () => onSplitCopy(timecode.id));
-			split.appendChild(copyButton);
-
-			const link = document.createElement('a');
-			copyButton.className = 'button icon copy';
-			link.className = 'link';
-			link.href = '#';
-			link.innerHTML = '<img class="button icon link" src="link.png"/>'
-			link.addEventListener('mouseover', () => {
-				const parts = durationParts(timecode.timestamp - state.timecodes[0].timestamp);
-				const t = `t=${parts.minutes}m${parts.seconds}s`;
-				link.href = renderTimecodeTemplate(configs.getString('linkTemplate'), timecode);
-			});
-			split.appendChild(link);
+			makeExportButtons(format => {
+				onSplitCopy(timecode.id, format);
+			}).forEach(button => split.appendChild(button));
 
 			if (timecode !== state.timecodes[0]) {
 				const deleteButton = document.createElement('img');
@@ -412,8 +414,12 @@
 			}
 		}
 
+		makeExportButtons(format => {
+			onCopyAll(format);
+		}).map(button => document.querySelector('#copyAll').appendChild(button));
+
 		document.addEventListener('keypress', onkeypress);
-		document.querySelector('#copyAll').addEventListener('click', () => onCopyAll());
+		// document.querySelector('#copyAll').addEventListener('click', () => onCopyAll());
 		document.querySelector('button[name=split]').addEventListener('click', (e) => {
 			doSplit();
 		});
