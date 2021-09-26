@@ -134,14 +134,15 @@
 				<div class='tr'><div class='td name'><strong>New split name</strong></div><div class='td value'><input type='text' name='newSplitName' value='New Split'></div></div>
 				<div class='tr'><div class='td name'><strong>Manual increment</strong></div><div class='td value'><input type='number' name='manualIncrement' value='1'></div></div>
 				<div class='tr'><div class='td name'><strong>Digit padding</strong></div><div class='td value'><input type='number' name='zeroPadding' value='2'></div></div>
+				
 				<div class='tr'>
 					<div class='td name'>
 						<div><strong>Export format</strong></div>
 						Examples
 						<div>
 							<ul style='list-style-type: none; padding: 0; margin: 0'>
-								<li><div>JSON</div><textarea type="text" readonly>${JSON.stringify(_.split)}</textarea></li>
-								<li><div>Youtube</div><textarea type="text" readonly>${_.split.timeFormatted} ${_.split.label}</textarea></li>
+								<li><div>YoutTube</div><textarea type="text" readonly>[${(_.split.timeParts.days*24+_.split.timeParts.hours).toString().padStart(2,'0')}:${_.split.timeParts.minutes.toString().padStart(2,'0')}:${_.split.timeParts.seconds.toString().padStart(2,'0')}](https://www.youtube.com/myvideo#t=${(_.split.timeParts.days*24+_.split.timeParts.hours).toString().padStart(2,'0')}h${_.split.timeParts.minutes.toString().padStart(2,'0')}m${_.split.timeParts.seconds.toString().padStart(2,'0')}s) ${_.split.label}</textarea></li>
+								<li><div>Markdown</div><textarea type="text" readonly>${(_.split.timeParts.days*24+_.split.timeParts.hours).toString().padStart(2,'0')}:${_.split.timeParts.minutes.toString().padStart(2,'0')}:${_.split.timeParts.seconds.toString().padStart(2,'0')}] ${_.split.label}</textarea></li>
 							</ul>
 						</div>
 					</div>
