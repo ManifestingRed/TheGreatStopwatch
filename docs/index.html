@@ -137,6 +137,7 @@
 				<div class='tr'><div class='td name'><strong>New split name</strong></div><div class='td value'><input type='text' name='newSplitName' value='New Split'></div></div>
 				<div class='tr'><div class='td name'><strong>Manual increment</strong></div><div class='td value'><input type='number' name='manualIncrement' value='1'></div></div>
 				<div class='tr'><div class='td name'><strong>Digit padding</strong></div><div class='td value'><input type='number' name='zeroPadding' value='2'></div></div>
+				<div class='tr'><div class='td name'><strong>Video URL</strong></div><div class='td value'><input type='text' name='videoURL' value='https://www.youtube.com/myvideo'></div></div>
 				
 				<div class='tr'>
 					<div class='td name'>
@@ -144,14 +145,14 @@
 						Examples
 						<div>
 							<ul style='list-style-type: none; padding: 0; margin: 0'>
-								<li><div>YoutTube</div><textarea type="text" readonly>[${(_.split.timeParts.days*24+_.split.timeParts.hours).toString().padStart(2,'0')}:${_.split.timeParts.minutes.toString().padStart(2,'0')}:${_.split.timeParts.seconds.toString().padStart(2,'0')}](https://www.youtube.com/myvideo#t=${(_.split.timeParts.days*24+_.split.timeParts.hours).toString().padStart(2,'0')}h${_.split.timeParts.minutes.toString().padStart(2,'0')}m${_.split.timeParts.seconds.toString().padStart(2,'0')}s) ${_.split.label}</textarea></li>
+								<li><div>YoutTube</div><textarea type="text" readonly>[${(_.split.timeParts.days*24+_.split.timeParts.hours).toString().padStart(2,'0')}:${_.split.timeParts.minutes.toString().padStart(2,'0')}:${_.split.timeParts.seconds.toString().padStart(2,'0')}](${_.videoURL}#t=${(_.split.timeParts.days*24+_.split.timeParts.hours).toString().padStart(2,'0')}h${_.split.timeParts.minutes.toString().padStart(2,'0')}m${_.split.timeParts.seconds.toString().padStart(2,'0')}s) ${_.split.label}</textarea></li>
 								<li><div>Markdown</div><textarea type="text" readonly>${(_.split.timeParts.days*24+_.split.timeParts.hours).toString().padStart(2,'0')}:${_.split.timeParts.minutes.toString().padStart(2,'0')}:${_.split.timeParts.seconds.toString().padStart(2,'0')}] ${_.split.label}</textarea></li>
 							</ul>
 						</div>
 					</div>
 					<div class='td value'>Enabled<input type='checkbox' name='export.1.enabled' checked>Name<input type='text' name='export.1.label' value='JSON'>Format<input type='text' name='export.1.format' value='${JSON.stringify(_.split)}'></div>
-					<div class='td value'>Enabled<input type='checkbox' name='export.2.enabled' checked>Name<input type='text' name='export.2.label' value='Youtube'>Format<input type='text' name='export.2.format' value='https://www.youtube.com/myvideo#t=${_.split.timeParts.minutes}m${_.split.timeParts.seconds}'></div>
-					<div class='td value'>Enabled<input type='checkbox' name='export.3.enabled' checked>Name<input type='text' name='export.3.label' value='Markdown'>Format<input type='text' name='export.3.format' value='[_.split.timeFormatted](https://www.youtube.com/myvideo#t=${_.split.timeParts.minutes}m${_.split.timeParts.seconds} ${_.split.label})'></div>
+					<div class='td value'>Enabled<input type='checkbox' name='export.2.enabled' checked>Name<input type='text' name='export.2.label' value='Youtube'>Format<input type='text' name='export.2.format' value='${(.split.timeParts.days*24+.split.timeParts.hours).toString().padStart(2,"0")}:${_.split.timeParts.minutes.toString().padStart(2,"0")}:${_.split.timeParts.seconds.toString().padStart(2,"0")} ${_.split.label}'></div>
+					<div class='td value'>Enabled<input type='checkbox' name='export.3.enabled' checked>Name<input type='text' name='export.3.label' value='Markdown'>Format<input type='text' name='export.3.format' value='[${(.split.timeParts.days*24+.split.timeParts.hours).toString().padStart(2,"0")}:${_.split.timeParts.minutes.toString().padStart(2,"0")}:${_.split.timeParts.seconds.toString().padStart(2,"0")}](${_.videoURL}#t=${(.split.timeParts.days*24+.split.timeParts.hours).toString().padStart(2,"0")}h${_.split.timeParts.minutes.toString().padStart(2,"0")}m${_.split.timeParts.seconds.toString().padStart(2,"0")}s) ${_.split.label}'></div>
 				</div>
 			</div>
 			<hr>
@@ -266,7 +267,8 @@
 					timeStamp: timecode.timestamp,
 					timeParts: durationParts(timecode.timestamp - state.timecodes[0].timestamp),
 					timeFormatted: formatTimeDelta(state.timecodes[0].timestamp, timecode.timestamp)
-				}
+				},
+				videoURL: configs.getString('videoURL')
 			};
 			const funcBody = `return \`${template.replaceAll('`', '\\`')}\`;`
 			const render = new Function('_', funcBody);
@@ -350,10 +352,6 @@
 			splitLabel.addEventListener('change', (e) => onSplitNameChange(e, timecode.id));
 			split.appendChild(splitLabel);
 
-			makeExportButtons(format => {
-				onSplitCopy(timecode.id, format);
-			}).forEach(button => split.appendChild(button));
-
 			if (timecode !== state.timecodes[0]) {
 				const deleteButton = document.createElement('img');
 				deleteButton.className = 'button icon delete';
@@ -423,7 +421,6 @@
 		}).map(button => document.querySelector('#copyAll').appendChild(button));
 
 		document.addEventListener('keypress', onkeypress);
-		// document.querySelector('#copyAll').addEventListener('click', () => onCopyAll());
 		document.querySelector('button[name=split]').addEventListener('click', (e) => {
 			doSplit();
 		});

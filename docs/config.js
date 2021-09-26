@@ -20,7 +20,7 @@ const Config = ((configName) => {
 		return keys;
 	}
 	c.clear = () => {
-		c.keys().forEach(x => window.localStorage.removeItem(x));
+		c.keys().forEach(x => window.localStorage.removeItem(`${c.prefix()}.${x}`));
 	}
 	Config.all.push(c);
 	return c;
