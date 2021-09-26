@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<title>The Great Stopwatch</title>
 	<link rel="stylesheet" type="text/css" href="light.theme.css">
 	<link rel="stylesheet" type="text/css" href="dark.theme.css">
 	<link rel="stylesheet" type="text/css" href="table.css">
@@ -142,17 +143,10 @@
 				<div class='tr'>
 					<div class='td name'>
 						<div><strong>Export format</strong></div>
-						Examples
-						<div>
-							<ul style='list-style-type: none; padding: 0; margin: 0'>
-								<li><div>YoutTube</div><textarea type="text" readonly>[${(_.split.timeParts.days*24+_.split.timeParts.hours).toString().padStart(2,'0')}:${_.split.timeParts.minutes.toString().padStart(2,'0')}:${_.split.timeParts.seconds.toString().padStart(2,'0')}](${_.videoURL}#t=${(_.split.timeParts.days*24+_.split.timeParts.hours).toString().padStart(2,'0')}h${_.split.timeParts.minutes.toString().padStart(2,'0')}m${_.split.timeParts.seconds.toString().padStart(2,'0')}s) ${_.split.label}</textarea></li>
-								<li><div>Markdown</div><textarea type="text" readonly>${(_.split.timeParts.days*24+_.split.timeParts.hours).toString().padStart(2,'0')}:${_.split.timeParts.minutes.toString().padStart(2,'0')}:${_.split.timeParts.seconds.toString().padStart(2,'0')}] ${_.split.label}</textarea></li>
-							</ul>
-						</div>
 					</div>
-					<div class='td value'>Enabled<input type='checkbox' name='export.1.enabled' checked>Name<input type='text' name='export.1.label' value='JSON'>Format<input type='text' name='export.1.format' value='${JSON.stringify(_.split)}'></div>
-					<div class='td value'>Enabled<input type='checkbox' name='export.2.enabled' checked>Name<input type='text' name='export.2.label' value='Youtube'>Format<input type='text' name='export.2.format' value='${(.split.timeParts.days*24+.split.timeParts.hours).toString().padStart(2,"0")}:${_.split.timeParts.minutes.toString().padStart(2,"0")}:${_.split.timeParts.seconds.toString().padStart(2,"0")} ${_.split.label}'></div>
-					<div class='td value'>Enabled<input type='checkbox' name='export.3.enabled' checked>Name<input type='text' name='export.3.label' value='Markdown'>Format<input type='text' name='export.3.format' value='[${(.split.timeParts.days*24+.split.timeParts.hours).toString().padStart(2,"0")}:${_.split.timeParts.minutes.toString().padStart(2,"0")}:${_.split.timeParts.seconds.toString().padStart(2,"0")}](${_.videoURL}#t=${(.split.timeParts.days*24+.split.timeParts.hours).toString().padStart(2,"0")}h${_.split.timeParts.minutes.toString().padStart(2,"0")}m${_.split.timeParts.seconds.toString().padStart(2,"0")}s) ${_.split.label}'></div>
+					<div class='td value'>Enabled<input type='checkbox' name='export.1.enabled' checked>Name<input type='text' name='export.1.label' value='JSON'>Format<input type='text' name='export.1.format' value='${JSON.stringify(_)}'></div>
+					<div class='td value'>Enabled<input type='checkbox' name='export.2.enabled' checked>Name<input type='text' name='export.2.label' value='Youtube'>Format<input type='text' name='export.2.format' value='${zpad(days*24+hours)}:${zpad(minutes)}:${zpad(seconds)} ${label}'></div>
+					<div class='td value'>Enabled<input type='checkbox' name='export.3.enabled' checked>Name<input type='text' name='export.3.label' value='Markdown'>Format<input type='text' name='export.3.format' value='[${zpad(days*24+hours)}:${zpad(minutes)}:${zpad(seconds)}](${url}#t=${zpad(days*24+hours)}h${zpad(minutes)}m${zpad(seconds)}s) ${label}'></div>
 				</div>
 			</div>
 			<hr>
@@ -261,18 +255,19 @@
 			document.querySelector('#totalTime .time').textContent = formatTimeDelta(state.timecodes[0].timestamp, now);
 		}
 		function renderTimecodeTemplate(template, timecode) {
-			const payload = {
-				split: {
-					label: timecode.label,
-					timeStamp: timecode.timestamp,
-					timeParts: durationParts(timecode.timestamp - state.timecodes[0].timestamp),
-					timeFormatted: formatTimeDelta(state.timecodes[0].timestamp, timecode.timestamp)
-				},
-				videoURL: configs.getString('videoURL')
+			const templateVars = {
+				label: timecode.label,
+				...durationParts(timecode.timestamp - state.timecodes[0].timestamp),
+				url: configs.getString('videoURL'),
+				zpad: x => (x||'').toString().padStart(configs.getInt('zeroPadding'), '0')
 			};
+			templateVars['_'] = {...templateVars};
+			const sortedTemplateKeys = ['_'].concat(Object.keys(templateVars)).sort();
 			const funcBody = `return \`${template.replaceAll('`', '\\`')}\`;`
-			const render = new Function('_', funcBody);
-			return render(payload).trim();
+			function F(args) { return Function.apply(this, [sortedTemplateKeys].concat([funcBody])); }
+			const render = new F();
+			const args = sortedTemplateKeys.map(x => templateVars[x]);
+			return render.apply(null, args).trim();
 		}
 		function renderTimeCodeClipboardItem(timecode, format) {
 			return renderTimecodeTemplate(format, timecode);
