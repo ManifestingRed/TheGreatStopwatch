@@ -5,13 +5,12 @@
 	display:  initial;
 }
 .tabs > .tabBar {
-	border: solid 1px;
+
 	border-color: var(--theme-tabs-border-color);
 }
 .tabs > .tabBar > .tabBarItem {
 	display: inline-block;
 	padding: 5px;
-	border-right: solid 1px;
 	color: var(--theme-tabs-text-color);
 	border-color: var(--theme-tabs-tab-border-color);
 }

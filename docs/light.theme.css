@@ -1,13 +1,13 @@
 :root.theme-light {
 	--theme-background-color: white;
-	--theme-text-color: black;
+	--theme-text-color: #454545;
 
-	--theme-tabs-text-color: black;
-	--theme-tabs-border-color: black;
-	--theme-tabs-tab-border-color: black;
-	--theme-tabs-tab-hover-background-color: rgb(200, 200, 200);
+	--theme-tabs-text-color: #454545;
+	--theme-tabs-border-color: #454545;
+	--theme-tabs-tab-border-color: #a00000;
+	--theme-tabs-tab-hover-background-color: rgb(245, 201, 201);
 
-	--theme-splits-paused-border-color: yellow;
+	--theme-splits-paused-border-color: #a00000;
 
-	--theme-button-hover-border-color: lightgrey;
+	--theme-button-hover-border-color: rgb(245, 201, 201);
 }

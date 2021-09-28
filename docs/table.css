@@ -1,9 +1,18 @@
 .table {
 	display: table;
+	align-items: center;
+	align-content: center;
+	text-align: center;
+	font-size: 14px;
 }
 .tr {
 	display: table-row;
 }
 .td {
 	display: table-cell;
+	width: 400px;
+}
+
+.value {
+	text-align: left;
 }

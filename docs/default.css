@@ -1,0 +1,107 @@
+body {
+    margin: 0;
+    padding-top: 130px;
+    padding-right: 110px;
+    padding-bottom: 10px;
+    padding-left: 335px;
+    border: 10px solid rgba(0,0,0,0);
+    background-color: var(--theme-background-color);
+    color: var(--theme-text-color);
+    font-family: Helvetica,Arial,Sans-Serif;
+    font-size: 24px;
+    text-align: center;
+ 
+}
+body.paused {
+    border: 10px solid;
+    border-color: #a00
+}
+.icon {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    user-select: none;
+}
+
+#splits {
+    list-style-type: none;
+}
+.split .time {
+    display: inline-block;
+    text-align: center;
+    padding: 5px;
+}
+.split .dec {
+    display: inline-block;
+}
+.split .inc {
+    display: inline-block;
+}
+.split .label {
+    display: inline-block;
+    margin-left: 20px;
+}
+.split .icon {
+    margin-left: 10px;
+}
+
+#currentSplit div {
+    display: inline-block;
+    color: #f29e25;
+    font-size: 1.875rem;
+}
+#currentSplit .name {
+}
+
+
+#totalTime div {
+    display: inline-block;
+    font-size: 13vw;
+    
+}
+#totalTime .name {
+}
+
+button {
+    text-transform: uppercase;
+    background-color: var(--theme-button-background-color);
+    color: var(--theme-button-text-color);
+    cursor: pointer;
+}
+button:hover, button:focus {
+    background-color: var(--theme-button-hover-background-color);
+}
+.button {
+    border: var(--theme-button-like-border);
+    padding: var(--theme-button-like-padding);
+    cursor: pointer;
+    user-select: none;
+}
+.button:hover, .button:focus {
+    border: var(--theme-button-like-hover-border);
+    padding:  var(--theme-button-like-hover-padding);
+}
+
+#copyAll {
+    vertical-align: text-bottom;
+}
+
+input[type=text], input[type=number], textarea {
+    font-size: 14px;
+    line-height: 2em;
+    height: 2em;
+    border: 1px solid rgba(0,0,0,.2);
+    vertical-align: middle;
+    border-radius: 4px;
+    padding: 2px 3px;
+    background: #fff;
+}
+
+
+ol {
+    padding-inline-start: 0px;
+}
+
+h1, h2 {
+    color: #a00;
+}

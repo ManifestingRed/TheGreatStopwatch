@@ -1,0 +1,28 @@
+
+
+/* BUTTON CSS
+------------------------------------------- */
+
+button.button2{
+  display:inline-block;
+	
+	text-decoration:none;	
+	
+	color:#a00000;
+	background-color:transparent;
+	border:1px solid #a00000;
+	border-radius:100px;
+	
+	padding: 1.5em ;
+	margin:5px;
+			
+	background-size: 200% 100%;	
+	background-image: linear-gradient(to, transparent 50%, #a00000 50%);
+	transition: background-position .3s cubic-bezier(0.19, 1, 0.22, 1) .1s, color .5s ease 0s, background-color .5s ease;
+}
+
+button.button2:hover{
+	color:rgba(255, 255, 255, 1);
+	background-color:#a00000;
+	background-position: -100% 100%;
+}

@@ -1,168 +1,82 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>The Great Stopwatch</title>
+	<title>⏱️ The Great Stopwatch</title>
 	<link rel="stylesheet" type="text/css" href="light.theme.css">
 	<link rel="stylesheet" type="text/css" href="dark.theme.css">
 	<link rel="stylesheet" type="text/css" href="table.css">
 	<link rel="stylesheet" type="text/css" href="tabs.css">
 	<link rel="stylesheet" type="text/css" href="config.css">
-	<style type="text/css">
-		body {
-			margin: 0;
-			padding-top: 70px;
-			padding-right: 110px;
-			padding-bottom: 10px;
-			padding-left: 185px;
-			border: 10px solid rgba(0,0,0,0);
-			background-color: var(--theme-background-color);
-			color: var(--theme-text-color);
-		}
-		body.paused {
-			border: 10px solid;
-			border-color: var(--theme-splits-paused-border-color);
-		}
-		.icon {
-			width: 16px;
-			height: 16px;
-			vertical-align: middle;
-			user-select: none;
-		}
-
-		#splits {
-			list-style-type: none;
-		}
-		.split .time {
-			display: inline-block;
-			min-width: 70px;
-			text-align: center;
-		}
-		.split .dec {
-			display: inline-block;
-		}
-		.split .inc {
-			display: inline-block;
-		}
-		.split .label {
-			display: inline-block;
-			margin-left: 10px;
-		}
-		.split .icon {
-			margin-left: 10px;
-		}
-
-		#currentSplit div {
-			display: inline-block;
-		}
-		#currentSplit .name {
-			min-width: 60px;
-		}
-
-
-		#totalTime div {
-			display: inline-block;
-		}
-		#totalTime .name {
-			min-width: 60px;
-		}
-
-		button {
-			text-transform: uppercase;
-			background-color: var(--theme-button-background-color);
-			color: var(--theme-button-text-color);
-			cursor: pointer;
-		}
-		button:hover, button:focus {
-			background-color: var(--theme-button-hover-background-color);
-		}
-		.button {
-			border: var(--theme-button-like-border);
-			padding: var(--theme-button-like-padding);
-			cursor: pointer;
-			user-select: none;
-		}
-		.button:hover, .button:focus {
-			border: var(--theme-button-like-hover-border);
-			padding:  var(--theme-button-like-hover-padding);
-		}
-
-
-		#copyAll {
-			vertical-align: text-bottom;
-		}
-
-		input[type=text], input[type=number], textarea {
-			border: dashed 1px;
-			background-color: var(--theme-input-background-color);
-			color: var(--theme-input-text-color);
-			outline: none;
-		}
-		input[type=text]:focus:not([readonly]), input[type=number]:focus:focus:not([readonly]), textarea:focus:focus:not([readonly]) {
-			border: initial;
-			outline: revert;
-			padding: 2px 3px;
-		}
-		.info {
-			white-space: pre;
-			border: 1px dashed lightgrey;
-			padding: 5px 10px 5px 10px;
-			display: inline-block;
-		}
-	</style>
+	<link rel="stylesheet" type="text/css" href="default.css">
+	<link rel="stylesheet" type="text/css" href="button.css">
 </head>
+
+<!-- Website -->	
 <body>
 	<div class='tabs'>
-		<div class='tabBar'></div>
-		<div class='tab active' data-title='splits'>
-			<div><b>The Great Stopwatch ⏱️</b><br/></div>
-			<div>Copy all<span id='copyAll'></span></div>
+		
+		<div class='tab active' data-title='⏱️'>
+			<h1>The Great Stopwatch</h1>
+			<div id='totalTime'><div class='name'></div><div class='time'></div></div>
+			<div id='currentSplit'><div class='name'></div><div class='time'></div></div>
 			<ol id='splits'></ol>
-			<div id='currentSplit'><div class='name'>Current</div><div class='time'></div></div>
-			<div id='totalTime'><div class='name'>Total</div><div class='time'></div></div>
-			<button name='reset'>reset</button>
-			<button name='pause'>pause</button>
-			<button name='split'>split</button>
+			<input type="text"></br>
+			<button class='button2' name='reset'>reset</button>
+			<button class='button2' name='pause'>pause</button>
+			<button class='button2' name='split'>split</button></br>
+			<span id='copyAll'></span>
 		</div>
-		<div class='tab' data-title='info'>
-			<div class='info'><strong>Info</strong>
-• Click descriptions to edit.
-• Global shortcut 'spacebar' to split (when not editing description).
-• <img class='button icon' src='copy.png'> copies to clipboard.</div>
+		<div class='tab' data-title='❓'>
+			<div class='info'><h2>Info</h2><br>
+Click descriptions to edit.<br>
+Global shortcut 'spacebar' to split (when not editing description).<br>
+<img class='button icon' src='copy.png'> copies to clipboard.<br>
+<br>
+Designed by <a href="http://www.Manifesting.Red" target="_blank"><img width="20" src='https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/facebook/65/large-red-circle_1f534.png'></a> <br>
+Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" src='http://putgeminmouth.com/images/logo-x.png'></a></div>
 		</div>
-		<div class='tab' data-title='config'>
+		<div class='tab' data-title='⚙️'>
+			<h2>Settings</h2>
 			<div class='table config'>
-				<div class='tr'><div class='td name'><strong>Dark mode</strong></div><div class='td value'><input type='checkbox' name='darkMode' checked></div></div>
 				<div class='tr'><div class='td name'><strong>Start on load</strong></div><div class='td value'><input type='checkbox' name='startOnLoad'></div></div>
 				<div class='tr'><div class='td name'><strong>Autosave</strong></div><div class='td value'><input type='checkbox' name='autosave' checked></div></div>
-				<div class='tr'><div class='td name'><strong>First split name</strong></div><div class='td value'><input type='text' name='firstSplitName' value='The Beginning'></div></div>
-				<div class='tr'><div class='td name'><strong>New split name</strong></div><div class='td value'><input type='text' name='newSplitName' value='New Split'></div></div>
+				<div class='tr'><div class='td name'><strong>First split name</strong></div><div class='td value'><input type='text' name='firstSplitName' value=''></div></div>
+				<div class='tr'><div class='td name'><strong>New split name</strong></div><div class='td value'><input type='text' name='newSplitName' value=''></div></div>
 				<div class='tr'><div class='td name'><strong>Manual increment</strong></div><div class='td value'><input type='number' name='manualIncrement' value='1'></div></div>
 				<div class='tr'><div class='td name'><strong>Digit padding</strong></div><div class='td value'><input type='number' name='zeroPadding' value='2'></div></div>
 				<div class='tr'><div class='td name'><strong>Video URL</strong></div><div class='td value'><input type='text' name='videoURL' value='https://www.youtube.com/myvideo'></div></div>
+				<div class='tr'><div class='td name'><strong>Export format</strong></div>
 				
-				<div class='tr'>
-					<div class='td name'>
-						<div><strong>Export format</strong></div>
-					</div>
-					<div class='td value'>Enabled<input type='checkbox' name='export.1.enabled' checked>Name<input type='text' name='export.1.label' value='JSON'>Format<input type='text' name='export.1.format' value='${JSON.stringify(_)}'></div>
-					<div class='td value'>Enabled<input type='checkbox' name='export.2.enabled' checked>Name<input type='text' name='export.2.label' value='Youtube'>Format<input type='text' name='export.2.format' value='${zpad(days*24+hours)}:${zpad(minutes)}:${zpad(seconds)} ${label}'></div>
-					<div class='td value'>Enabled<input type='checkbox' name='export.3.enabled' checked>Name<input type='text' name='export.3.label' value='Markdown'>Format<input type='text' name='export.3.format' value='[${zpad(days*24+hours)}:${zpad(minutes)}:${zpad(seconds)}](${url}#t=${zpad(days*24+hours)}h${zpad(minutes)}m${zpad(seconds)}s) ${label}'></div>
-				</div>
+				<div class='td value'>Enabled<input type='checkbox' name='export.1.enabled' checked>
+					<br>Name<input type='text' name='export.1.label' value='JSON'>
+					<br>Format<input type='text' name='export.1.format' value='${JSON.stringify(_)}'></div>
+			
+				<div class='td value'>Enabled<input type='checkbox' name='export.2.enabled' checked>
+					<br>Name<input type='text' name='export.2.label' value='Youtube'>
+					<br>Format<input type='text' name='export.2.format' value='${zpad(days*24+hours)}:${zpad(minutes)}:${zpad(seconds)} ${label}'></div>
+
+
+				<div class='td value'>Enabled<input type='checkbox' name='export.3.enabled' checked>
+					<br>Name<input type='text' name='export.3.label' value='Markdown'>
+					<br>Format<input type='text' name='export.3.format' value='- [${zpad(days*24+hours)}:${zpad(minutes)}:${zpad(seconds)}](${url}#t=${zpad(days*24+hours)}h${zpad(minutes)}m${zpad(seconds)}s) ${label}'></div>
+	</div>
 			</div>
 			<hr>
 			<div style='position: relative'>
-				<div>⛔️&nbsp;Consider your actions carefully&nbsp;⛔️</div>
 				<div class='table config dangerzone'>
-					<div class='tr'><div class='td name'><strong>Clear local storage</strong><br>Do you really want to do it? Reload afterward and let go of all your worries.</div><div class='td value'><button name='clearLocalStorage'>Clear Now</button></div></div>
-					<div class='tr'><div class='td name'><strong>Always reload after clearing</strong><br>Offers peace of mind; not everyone is ready for it.</div><div class='td value'><input type='checkbox' name='peaceOfMind'></div></div>
+					<div class='tr'><div class='td name'><strong>⛔️ Clear local storage</strong></div><div class='td value'><button name='clearLocalStorage'>Clear Now</button></div></div>
+					<div class='tr'><div class='td name'><strong>⛔️ Always reload after clearing</strong></div><div class='td value'><input type='checkbox' name='peaceOfMind'></div></div>
 				</div>
 			</div>
 		</div>
+		<br><br>
+		<div class='tabBar'></div>
 	</div>
-	<script>
-	</script>
+
+<!-- Scripts -->	
 	<script src='tabs.js'></script>
 	<script src='config.js'></script>
+	<script src='button.js'></script>
 	<script>
 		function durationParts(delta) {
 			var millis = Math.floor(delta%1000);
@@ -181,7 +95,7 @@
 		function formatTimeDelta(from, to) {
 			const pad = x => x.toString().padStart(configs.getInt('zeroPadding'), '0');
 			const delta = durationParts(to - from);
-			const formatted = `${pad(delta.days)}:${pad(delta.hours)}:${pad(delta.minutes)}:${pad(delta.seconds)}`;
+			const formatted = `${pad(delta.hours)}:${pad(delta.minutes)}:${pad(delta.seconds)}`;
 			return formatted;
 		}
 		function TimeCode(timestamp, label) {
@@ -274,7 +188,7 @@
 		}
 		function onCopyAll(format) {
 			const rendered = state.timecodes.map(x => renderTimeCodeClipboardItem(x, format));
-			navigator.clipboard.writeText(rendered.join('\n'));
+			navigator.clipboard.writeText(rendered.join('\n\n'));
 		}
 		function onSplitNameChange(e, id) {
 			var index = state.timecodes.findIndex(x => x.id === id);
@@ -325,7 +239,7 @@
 			splitTimeDec.className = 'button dec';
 			splitTimeDec.textContent = '-';
 			splitTimeDec.addEventListener('click', (e) => onSplitTimeInc(e, timecode.id, -1000*configs.getInt('manualIncrement')));
-			if (timecode === state.timecodes[0]) splitTimeDec.style.visibility = 'hidden';
+			//if (timecode === state.timecodes[0]) splitTimeDec.style.visibility = 'hidden';
 			split.appendChild(splitTimeDec);
 
 			const splitTime = document.createElement('div');
@@ -335,9 +249,9 @@
 
 			const splitTimeInc = document.createElement('div');
 			splitTimeInc.className = 'button inc';
-			splitTimeInc.textContent = '+';
+			splitTimeInc.textContent = "+";
 			splitTimeInc.addEventListener('click', (e) => onSplitTimeInc(e, timecode.id, 1000*configs.getInt('manualIncrement')));
-			if (timecode === state.timecodes[0]) splitTimeInc.style.visibility = 'hidden';
+			//if (timecode === state.timecodes[0]) splitTimeInc.style.visibility = 'hidden';
 			split.appendChild(splitTimeInc);
 
 			const splitLabel = document.createElement('input');
@@ -347,13 +261,13 @@
 			splitLabel.addEventListener('change', (e) => onSplitNameChange(e, timecode.id));
 			split.appendChild(splitLabel);
 
-			if (timecode !== state.timecodes[0]) {
+			/* if (timecode !== state.timecodes[0]) {*/
 				const deleteButton = document.createElement('img');
 				deleteButton.className = 'button icon delete';
 				deleteButton.src = 'delete.png';
 				deleteButton.addEventListener('click', () => onSplitDelete(timecode.id));
 				split.appendChild(deleteButton);
-			}
+			
 
 			return split;
 		}
@@ -390,7 +304,7 @@
 				timer = clearInterval(timer);
 				document.body.classList.add('running');
 				document.body.classList.add('paused');
-				document.querySelector('button[name=pause]').textContent = 'unpause';
+				document.querySelector('button[name=pause]').textContent = 'start';
 			} else {
 				state.fullPrecisionPreviousTime = Date.now();
 				timer = setInterval(function() {
@@ -399,7 +313,7 @@
 				}, 100);
 				document.body.classList.remove('paused');
 				document.body.classList.add('running');
-				document.querySelector('button[name=pause]').textContent = 'pause';
+				document.querySelector('button[name=pause]').textContent = 'stop';
 			}
 		}
 
@@ -439,5 +353,6 @@
 		if (!configs.getBool('startOnLoad'))
 			doPause();
 	</script>
+
 </body>
 </html>	
