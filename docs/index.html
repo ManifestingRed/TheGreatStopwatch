@@ -15,18 +15,18 @@
 <body>
 	<div class='tabs'>
 		
-		<div class='tab active' data-title='⏱️'>
-			<h1>The Great Stopwatch</h1>
+		<div class='tab active' data-title='stopwatch'>
+			<div><h1>The Great Stopwatch</h1></div>
+			
 			<div id='totalTime'><div class='name'></div><div class='time'></div></div>
 			<div id='currentSplit'><div class='name'></div><div class='time'></div></div>
 			<ol id='splits'></ol>
-			<input type="text"></br>
 			<button class='button2' name='reset'>reset</button>
 			<button class='button2' name='pause'>pause</button>
 			<button class='button2' name='split'>split</button></br>
-			<span id='copyAll'></span>
+			<div><span id='copyAll'></span></div>
 		</div>
-		<div class='tab' data-title='❓'>
+		<div class='tab' data-title='info'>
 			<div class='info'><h2>Info</h2><br>
 Click descriptions to edit.<br>
 Global shortcut 'spacebar' to split (when not editing description).<br>
@@ -35,7 +35,7 @@ Global shortcut 'spacebar' to split (when not editing description).<br>
 Designed by <a href="http://www.Manifesting.Red" target="_blank"><img width="20" src='https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/facebook/65/large-red-circle_1f534.png'></a> <br>
 Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" src='http://putgeminmouth.com/images/logo-x.png'></a></div>
 		</div>
-		<div class='tab' data-title='⚙️'>
+		<div class='tab' data-title='config'>
 			<h2>Settings</h2>
 			<div class='table config'>
 				<div class='tr'><div class='td name'><strong>Start on load</strong></div><div class='td value'><input type='checkbox' name='startOnLoad'></div></div>
@@ -261,13 +261,14 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			splitLabel.addEventListener('change', (e) => onSplitNameChange(e, timecode.id));
 			split.appendChild(splitLabel);
 
-			/* if (timecode !== state.timecodes[0]) {*/
+			/* if (timecode !== state.timecodes[0]) {
 				const deleteButton = document.createElement('img');
 				deleteButton.className = 'button icon delete';
 				deleteButton.src = 'delete.png';
 				deleteButton.addEventListener('click', () => onSplitDelete(timecode.id));
 				split.appendChild(deleteButton);
-			
+				}
+			*/
 
 			return split;
 		}
