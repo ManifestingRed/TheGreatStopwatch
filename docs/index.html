@@ -270,6 +270,12 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 				}
 			*/
 
+			const deleteButton = document.createElement('img');
+				deleteButton.className = 'button icon delete';
+				deleteButton.src = 'delete.png';
+				deleteButton.addEventListener('click', () => onSplitDelete(timecode.id));
+				split.appendChild(deleteButton);
+
 			return split;
 		}
 		function render() {
