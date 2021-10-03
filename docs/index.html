@@ -163,7 +163,6 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 						debounceTimeout = null;
 						if (configs.getBool('autosave'))
 							storageData.setString('state', JSON.stringify(state));
-						doRenderAllSplits();
 					});
 			};
 		})();
@@ -210,8 +209,8 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			var index = state.timecodes.findIndex(x => x.id === id);
 			const timecode = state.timecodes[index];
 			timecode.timestamp += inc;
-			// var elem = document.querySelector(`#splits > #split-${id} .time`);
-			// elem.textContent = formatTimeDelta(state.timecodes[0].timestamp, timecode.timestamp);
+			var elem = document.querySelector(`#splits > #split-${id} .time`);
+			elem.textContent = formatTimeDelta(state.timecodes[0].timestamp, timecode.timestamp);
 		}
 		function onSplitCopy(id, format) {
 			var index = state.timecodes.findIndex(x => x.id === id);
