@@ -21,6 +21,7 @@
 			<div id='totalTime'><div class='name'></div><div class='time'></div></div>
 			<div id='currentSplit'><div class='name'></div><div class='time'></div></div>
 			<ol id='splits'></ol>
+			<div><input type='text' name='nextSplit' placeholder='Next Split' /></div>
 			<button class='button2' name='reset'>reset</button>
 			<button class='button2' name='pause'>pause</button>
 			<button class='button2' name='split'>split</button></br>
@@ -283,7 +284,9 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			renderTotalTime();
 		}
 		function doSplit(name) {
-			const timecode = TimeCode(now, name||configs.getString('newSplitName'));
+			const nextSplitText = document.querySelector('input[name=nextSplit]').value.trim();
+			document.querySelector('input[name=nextSplit]').value = '';
+			const timecode = TimeCode(now, (name||nextSplitText||configs.getString('newSplitName')||'').trim());
 			state.timecodes.push(timecode);
 			const splits = document.querySelector('#splits');
 			splits.appendChild(renderSplit(timecode));
