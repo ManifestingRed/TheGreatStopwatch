@@ -21,10 +21,11 @@
 			<div id='currentSplit'><div class='name'></div><div class='time'></div></div>
 			<ol id='splits'></ol>
 			<div><input type='text' name='nextSplit' placeholder='Next Split' /></div>
-			<button class='button2' name='reset'>reset</button>
-			<button class='button2' name='pause'>pause</button>
-			<button class='button2' name='split'>split</button></br>
+			<button name='reset'>reset</button>
+			<button name='pause'>pause</button>
+			<button name='split'>split</button></br>
 			<div><span id='copyAll'></span></div>
+			<div><button name='fixClipboard'>Fix clipboard</button></div>
 		</div>
 		<div class='tab' data-title='info'>
 			<div class='info'><h2>Info</h2><br>
@@ -195,6 +196,11 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			const rendered = state.timecodes.map(x => renderTimeCodeClipboardItem(x, format));
 			navigator.clipboard.writeText(rendered.join('\n\n'));
 		}
+		async function onFixClipboard(format) {
+			const original = await navigator.clipboard.readText();
+			const fixed = original.replaceAll(/\[([0-9:]+)\]\((http[^)]+)\)/g, '$1');
+			navigator.clipboard.writeText(fixed);
+		}
 		function onSplitNameChange(e, id) {
 			var index = state.timecodes.findIndex(x => x.id === id);
 			const timecode = state.timecodes[index];
@@ -363,6 +369,9 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 		});
 		document.querySelector('button[name=pause]').addEventListener('click', (e) => {
 			doPause()
+		});
+		document.querySelector('button[name=fixClipboard]').addEventListener('click', (e) => {
+			onFixClipboard()
 		});
 		Array.from(document.querySelectorAll('button')).forEach(button => {
 			button.addEventListener('click', (e) => {
