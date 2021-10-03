@@ -29,6 +29,7 @@ body.paused {
 .split {
     display: flex;
     padding: 5px;
+    justify-content: center;
 }
 .split > . {
     flex: 1 1;
