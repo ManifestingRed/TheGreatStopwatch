@@ -8,7 +8,6 @@
 	<link rel="stylesheet" type="text/css" href="tabs.css">
 	<link rel="stylesheet" type="text/css" href="config.css">
 	<link rel="stylesheet" type="text/css" href="default.css">
-	<link rel="stylesheet" type="text/css" href="button.css">
 </head>
 
 <!-- Website -->	
@@ -77,7 +76,6 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 <!-- Scripts -->	
 	<script src='tabs.js'></script>
 	<script src='config.js'></script>
-	<script src='button.js'></script>
 	<script>
 		function durationParts(delta) {
 			var millis = Math.floor(delta%1000);
@@ -117,9 +115,14 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 				Object.keys(target)
 					.filter(p => typeof(target[p]) === 'object')
 					.forEach(p => target[p] = fac.create(target[p]));
+				Object.keys(target)
+					.filter(p => Array.isArray(target[p]))
+					.forEach(p => target[p] = fac.create(target[p]));
 				return new Proxy(target, {
 					set: (o,p,v) => {
 						if (typeof(v) === 'object')
+							v = fac.create(v);
+						else if (Array.isArray(v))
 							v = fac.create(v);
 						o[p] = v;
 						fac.dirty(true);
@@ -159,6 +162,7 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 						debounceTimeout = null;
 						if (configs.getBool('autosave'))
 							storageData.setString('state', JSON.stringify(state));
+						doRenderAllSplits();
 					});
 			};
 		})();
@@ -200,8 +204,8 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			var index = state.timecodes.findIndex(x => x.id === id);
 			const timecode = state.timecodes[index];
 			timecode.timestamp += inc;
-			var elem = document.querySelector(`#splits > #split-${id} .time`);
-			elem.textContent = formatTimeDelta(state.timecodes[0].timestamp, timecode.timestamp);
+			// var elem = document.querySelector(`#splits > #split-${id} .time`);
+			// elem.textContent = formatTimeDelta(state.timecodes[0].timestamp, timecode.timestamp);
 		}
 		function onSplitCopy(id, format) {
 			var index = state.timecodes.findIndex(x => x.id === id);
@@ -213,8 +217,8 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			var index = state.timecodes.findIndex(x => x.id === id);
 			state.timecodes.splice(index, 1);
 
-			var split = document.querySelector(`#splits > #split-${id}`);
-			split.remove();
+			// var split = document.querySelector(`#splits > #split-${id}`);
+			// split.remove();
 		}
 		function makeExportButtons(onClick) {
 			return configs.keys().filter(x => x.startsWith("export.") && x.endsWith("enabled"))
@@ -236,24 +240,35 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			split.id = `split-${timecode.id}`;
 			split.className = 'split';
 
+			const splitTimeDiv = document.createElement('div');
+			splitTimeDiv.className = 'timing';
+			split.appendChild(splitTimeDiv);
+
 			const splitTimeDec = document.createElement('div');
 			splitTimeDec.className = 'button dec';
 			splitTimeDec.textContent = '-';
 			splitTimeDec.addEventListener('click', (e) => onSplitTimeInc(e, timecode.id, -1000*configs.getInt('manualIncrement')));
 			//if (timecode === state.timecodes[0]) splitTimeDec.style.visibility = 'hidden';
-			split.appendChild(splitTimeDec);
+			splitTimeDiv.appendChild(splitTimeDec);
 
 			const splitTime = document.createElement('div');
 			splitTime.className = 'time';
 			splitTime.textContent = formatTimeDelta(state.timecodes[0].timestamp, timecode.timestamp);
-			split.appendChild(splitTime);
+			splitTimeDiv.appendChild(splitTime);
 
 			const splitTimeInc = document.createElement('div');
 			splitTimeInc.className = 'button inc';
 			splitTimeInc.textContent = "+";
 			splitTimeInc.addEventListener('click', (e) => onSplitTimeInc(e, timecode.id, 1000*configs.getInt('manualIncrement')));
 			//if (timecode === state.timecodes[0]) splitTimeInc.style.visibility = 'hidden';
-			split.appendChild(splitTimeInc);
+			splitTimeDiv.appendChild(splitTimeInc);
+
+			const splitTimeDuration = document.createElement('div');
+			splitTimeDuration.className = 'duration';
+			state.timecodes.concat([]).sort(x => x.id).filter(x => x.id < timecode.id).reverse().slice(0, 1).forEach(prev => {
+				splitTimeDuration.textContent = `(${formatTimeDelta(prev.timestamp, timecode.timestamp)})`;
+				splitTimeDiv.appendChild(splitTimeDuration);
+			});
 
 			const splitLabel = document.createElement('input');
 			splitLabel.type = 'text';

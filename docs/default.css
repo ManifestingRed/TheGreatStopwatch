@@ -26,10 +26,22 @@ body.paused {
 #splits {
     list-style-type: none;
 }
-.split .time {
-    display: inline-block;
-    text-align: center;
+.split {
+    display: flex;
     padding: 5px;
+}
+.split > . {
+    flex: 1 1;
+}
+.split .timing {
+    display: flex;
+}
+.split .time {
+}
+.split .duration {
+    margin-left: 5px;
+    font-style: italic;
+    color: lightgray;
 }
 .split .dec {
     display: inline-block;
