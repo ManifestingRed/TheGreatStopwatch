@@ -44,6 +44,15 @@ body.paused {
 .split .icon {
     margin-left: 10px;
 }
+.split .duration {
+    display: inline-block;
+    margin-left: 5px;
+    font-style: italic;
+    color: lightgray;
+}
+.split .timing {
+    display: inline-block;
+}
 
 #currentSplit div {
     display: inline-block;
