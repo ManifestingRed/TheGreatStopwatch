@@ -374,6 +374,9 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 		document.querySelector('button[name=pause]').addEventListener('click', (e) => {
 			doPause()
 		});
+		document.querySelector('button[name=fixClipboard]').addEventListener('click', (e) => {
+			onFixClipboard();
+		});
 		Array.from(document.querySelectorAll('button')).forEach(button => {
 			button.addEventListener('click', (e) => {
 				e.currentTarget.blur(); // reserve focus for global split toggle shortcut
