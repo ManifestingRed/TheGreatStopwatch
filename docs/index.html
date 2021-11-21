@@ -54,13 +54,17 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 					<br>Format<input type='text' name='export.1.format' value='${JSON.stringify(_)}'></div>
 			
 				<div class='td value'>Enabled<input type='checkbox' name='export.2.enabled' checked>
-					<br>Name<input type='text' name='export.2.label' value='Youtube'>
+					<br>Name<input type='text' name='export.2.label' value='Youtube Time'>
 					<br>Format<input type='text' name='export.2.format' value='${zpad(days*24+hours)}:${zpad(minutes)}:${zpad(seconds)} ${label}'></div>
-
 
 				<div class='td value'>Enabled<input type='checkbox' name='export.3.enabled' checked>
 					<br>Name<input type='text' name='export.3.label' value='Markdown'>
 					<br>Format<input type='text' name='export.3.format' value='- [${zpad(days*24+hours)}:${zpad(minutes)}:${zpad(seconds)}](${url}#t=${zpad(days*24+hours)}h${zpad(minutes)}m${zpad(seconds)}s) ${label}'></div>
+
+				<div class='td value'>Enabled<input type='checkbox' name='export.ytlink.enabled'>
+					<br>Name<input type='text' name='export.ytlink.label' value='Youtube Link' disabled>
+					<br>Format<input type='text' name='export.ytlink.format' value='${url}#t=${zpad(days*24+hours)}h${zpad(minutes)}m${zpad(seconds)}s'></div>
+
 	</div>
 			</div>
 			<hr>
@@ -217,19 +221,22 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			var split = document.querySelector(`#splits > #split-${id}`);
 			split.remove();
 		}
+		function makeExportButton(title, label, onClick) {
+			const exportButton = document.createElement('button');
+			exportButton.innerHTML = '<img><span>';
+			exportButton.querySelector('img').className = 'icon copy';
+			exportButton.querySelector('img').src = 'copy.png';
+			exportButton.querySelector('img').title = title;
+			exportButton.querySelector('span').textContent = label;
+			exportButton.addEventListener('click', () => onClick());
+			return exportButton;
+		}
 		function makeExportButtons(onClick) {
 			return configs.keys().filter(x => x.startsWith("export.") && x.endsWith("enabled"))
 				.filter(x => configs.getBool(x))
 				.map(x => x.replaceAll(/export\.([^.]+)\..*/g, '$1'))
 				.map(index => {
-					const exportButton = document.createElement('button');
-					exportButton.innerHTML = '<img><span>';
-					exportButton.querySelector('img').className = 'icon copy';
-					exportButton.querySelector('img').src = 'copy.png';
-					exportButton.querySelector('img').title = `Export ${configs.getString(`export.${index}.label`)}`;
-					exportButton.querySelector('span').textContent = configs.getString(`export.${index}.label`);
-					exportButton.addEventListener('click', () => onClick(configs.getString(`export.${index}.format`)));
-					return exportButton;
+					return makeExportButton(`Export ${configs.getString(`export.${index}.label`)}`, configs.getString(`export.${index}.label`), () => onClick(configs.getString(`export.${index}.format`)));
 			});
 		}
 		function renderSplit(timecode) {
@@ -258,6 +265,11 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			const splitTime = document.createElement('div');
 			splitTime.className = 'time';
 			splitTime.textContent = formatTimeDelta(state.timecodes[0].timestamp, timecode.timestamp);
+			splitTimeDiv.addEventListener('click', (e) => {
+				const format = configs.getString(`export.ytlink.format`)
+				const rendered = renderTimeCodeClipboardItem(timecode, format);
+				navigator.clipboard.writeText(rendered);
+			});
 			splitTimeDiv.appendChild(splitTime);
 
 			const splitTimeInc = document.createElement('div');
@@ -273,15 +285,6 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			splitLabel.value = timecode.label;
 			splitLabel.addEventListener('change', (e) => onSplitNameChange(e, timecode.id));
 			splitTimeDiv.appendChild(splitLabel);
-
-			/* if (timecode !== state.timecodes[0]) {
-				const deleteButton = document.createElement('img');
-				deleteButton.className = 'button icon delete';
-				deleteButton.src = 'delete.png';
-				deleteButton.addEventListener('click', () => onSplitDelete(timecode.id));
-				split.appendChild(deleteButton);
-				}
-			*/
 
 			const deleteButton = document.createElement('img');
 				deleteButton.className = 'button icon delete';
