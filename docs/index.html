@@ -55,11 +55,11 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			
 				<div class='td value'>Enabled<input type='checkbox' name='export.2.enabled' checked>
 					<br>Name<input type='text' name='export.2.label' value='Youtube Time'>
-					<br>Format<input type='text' name='export.2.format' value='${zpad(days*24+hours)}:${zpad(minutes)}:${zpad(seconds)} ${label}'></div>
+					<br>Format<input type='text' name='export.2.format' value='${(days||hours)?zpad(days*24+hours)+":":""}${zpad(minutes)}:${zpad(seconds)} ${label}'></div>
 
 				<div class='td value'>Enabled<input type='checkbox' name='export.3.enabled' checked>
 					<br>Name<input type='text' name='export.3.label' value='Markdown'>
-					<br>Format<input type='text' name='export.3.format' value='- [${zpad(days*24+hours)}:${zpad(minutes)}:${zpad(seconds)}](${url}#t=${zpad(days*24+hours)}h${zpad(minutes)}m${zpad(seconds)}s) ${label}'></div>
+					<br>Format<input type='text' name='export.3.format' value='- [${(days||hours)?zpad(days*24+hours)+":":""}${zpad(minutes)}:${zpad(seconds)}](${url}#t=${zpad(days*24+hours)}h${zpad(minutes)}m${zpad(seconds)}s) ${label}'></div>
 
 				<div class='td value'>Enabled<input type='checkbox' name='export.ytlink.enabled'>
 					<br>Name<input type='text' name='export.ytlink.label' value='Youtube Link' disabled>
