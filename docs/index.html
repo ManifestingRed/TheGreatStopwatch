@@ -265,7 +265,7 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			const splitTime = document.createElement('div');
 			splitTime.className = 'time';
 			splitTime.textContent = formatTimeDelta(state.timecodes[0].timestamp, timecode.timestamp);
-			splitTimeDiv.addEventListener('click', (e) => {
+			splitTime.addEventListener('click', (e) => {
 				const format = configs.getString(`export.ytlink.format`)
 				const rendered = renderTimeCodeClipboardItem(timecode, format);
 				navigator.clipboard.writeText(rendered);
