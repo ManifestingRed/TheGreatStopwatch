@@ -244,6 +244,12 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			split.id = `split-${timecode.id}`;
 			split.className = 'split';
 
+			const deleteButton = document.createElement('img');
+				deleteButton.className = 'button icon delete';
+				deleteButton.src = 'delete.png';
+				deleteButton.addEventListener('click', () => onSplitDelete(timecode.id));
+				split.appendChild(deleteButton);
+
 			const splitTimeDiv = document.createElement('div');
 			splitTimeDiv.className = 'timing';
 			split.appendChild(splitTimeDiv);
@@ -285,12 +291,6 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			splitLabel.value = timecode.label;
 			splitLabel.addEventListener('change', (e) => onSplitNameChange(e, timecode.id));
 			splitTimeDiv.appendChild(splitLabel);
-
-			const deleteButton = document.createElement('img');
-				deleteButton.className = 'button icon delete';
-				deleteButton.src = 'delete.png';
-				deleteButton.addEventListener('click', () => onSplitDelete(timecode.id));
-				split.appendChild(deleteButton);
 
 			return split;
 		}
