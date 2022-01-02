@@ -167,8 +167,17 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			};
 		})();
 
-		function renderCurrentSplit() {
-			document.querySelector('#currentSplit .time').textContent = formatTimeDelta(state.timecodes[state.timecodes.length-1].timestamp, now);
+		function renderSelectionSplit() {
+			const start = state.timecodes.find(x => x.id === state.selectStart);
+			const end = state.timecodes.find(x => x.id === state.selectEnd);
+			if (!(start && end))
+				return;
+			const startStamp = start.timestamp;
+			const endStampExclusive = end.timestamp;
+			const endStampInclusive = state.timecodes.concat([]).sort(x => x.id).filter(x => x.id > end.id).map(x => x.timestamp).concat([now]).slice(0, 1);
+			// set to endStampExclusive to calculate up to beginning of second selection or endStampInclusive to include the second selection's length
+			const endStamp = endStampExclusive;
+			document.querySelector('#currentSplit .time').textContent = formatTimeDelta(startStamp, endStamp);
 		}
 		function renderTotalTime() {
 			document.querySelector('#totalTime .time').textContent = formatTimeDelta(state.timecodes[0].timestamp, now);
@@ -245,10 +254,10 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			split.className = 'split';
 
 			const deleteButton = document.createElement('img');
-				deleteButton.className = 'button icon delete';
-				deleteButton.src = 'delete.png';
-				deleteButton.addEventListener('click', () => onSplitDelete(timecode.id));
-				split.appendChild(deleteButton);
+			deleteButton.className = 'button icon delete';
+			deleteButton.src = 'delete.png';
+			deleteButton.addEventListener('click', () => onSplitDelete(timecode.id));
+			split.appendChild(deleteButton);
 
 			const splitTimeDiv = document.createElement('div');
 			splitTimeDiv.className = 'timing';
@@ -292,6 +301,29 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			splitLabel.addEventListener('change', (e) => onSplitNameChange(e, timecode.id));
 			splitTimeDiv.appendChild(splitLabel);
 
+
+			const selectStartButton = document.createElement('input');
+			selectStartButton.type = 'radio';
+			selectStartButton.name = 'start';
+			selectStartButton.className = 'selection';
+			selectStartButton.checked = state.selectStart == timecode.id;
+			selectStartButton.addEventListener('change', (e) => {
+				state.selectStart = timecode.id;
+				renderSelectionSplit();
+			});
+			split.appendChild(selectStartButton);
+
+			const selectEndButton = document.createElement('input');
+			selectEndButton.type = 'radio';
+			selectEndButton.name = 'end';
+			selectEndButton.className = 'selection';
+			selectEndButton.checked = state.selectEnd == timecode.id;
+			selectEndButton.addEventListener('change', (e) => {
+				state.selectEnd = timecode.id;
+				renderSelectionSplit();
+			});
+			split.appendChild(selectEndButton);
+
 			return split;
 		}
 		function renderDuration(timecode, splitTimeDuration) {
@@ -301,7 +333,7 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			});
 		}
 		function render() {
-			renderCurrentSplit();
+			renderSelectionSplit();
 			renderTotalTime();
 			state.timecodes.forEach(t => renderDuration(t));
 		}
@@ -393,6 +425,8 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 		doPause();
 		if (!configs.getBool('startOnLoad'))
 			doPause();
+		update();
+		render();
 	</script>
 
 </body>
