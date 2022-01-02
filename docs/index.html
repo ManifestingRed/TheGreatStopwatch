@@ -98,13 +98,16 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			};
 		}
 		function formatTimeDelta(from, to) {
+			return formatTimeDuration(to-from);
+		}
+		function formatTimeDuration(duration) {
 			const pad = x => x.toString().padStart(configs.getInt('zeroPadding'), '0');
-			const delta = durationParts(to - from);
-			const formatted = `${pad(delta.hours)}:${pad(delta.minutes)}:${pad(delta.seconds)}`;
+			const parts = durationParts(duration);
+			const formatted = `${pad(parts.hours)}:${pad(parts.minutes)}:${pad(parts.seconds)}`;
 			return formatted;
 		}
 		function TimeCode(timestamp, label) {
-			return { id:(++state.timecodeIdCounter) , timestamp, label };
+			return { id:(++state.timecodeIdCounter) , timestamp, label, selected: true };
 		}
 
 		const proxies = (() => {
@@ -168,16 +171,17 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 		})();
 
 		function renderSelectionSplit() {
-			const start = state.timecodes.find(x => x.id === state.selectStart);
-			const end = state.timecodes.find(x => x.id === state.selectEnd);
-			if (!(start && end))
+			const reversed = state.timecodes.concat([]).reverse();
+			const last = reversed.find(x => x.selected);
+			if (!last)
 				return;
-			const startStamp = start.timestamp;
-			const endStampExclusive = end.timestamp;
-			const endStampInclusive = state.timecodes.concat([]).sort(x => x.id).filter(x => x.id > end.id).map(x => x.timestamp).concat([now]).slice(0, 1);
-			// set to endStampExclusive to calculate up to beginning of second selection or endStampInclusive to include the second selection's length
-			const endStamp = endStampExclusive;
-			document.querySelector('#currentSplit .time').textContent = formatTimeDelta(startStamp, endStamp);
+			const duration = state.timecodes.reduceRight((acc, next) => {
+				if (next.selected)
+					acc.total += acc.timestamp - next.timestamp;
+				acc.timestamp = next.timestamp;
+				return acc;
+			}, {total:0,timestamp:now}).total;
+			document.querySelector('#currentSplit .time').textContent = formatTimeDuration(duration);
 		}
 		function renderTotalTime() {
 			document.querySelector('#totalTime .time').textContent = formatTimeDelta(state.timecodes[0].timestamp, now);
@@ -229,6 +233,8 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 
 			var split = document.querySelector(`#splits > #split-${id}`);
 			split.remove();
+
+			renderSelectionSplit();
 		}
 		function makeExportButton(title, label, onClick) {
 			const exportButton = document.createElement('button');
@@ -302,27 +308,15 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			splitTimeDiv.appendChild(splitLabel);
 
 
-			const selectStartButton = document.createElement('input');
-			selectStartButton.type = 'radio';
-			selectStartButton.name = 'start';
-			selectStartButton.className = 'selection';
-			selectStartButton.checked = state.selectStart == timecode.id;
-			selectStartButton.addEventListener('change', (e) => {
-				state.selectStart = timecode.id;
+			const selectButton = document.createElement('input');
+			selectButton.type = 'checkbox';
+			selectButton.className = 'selection';
+			selectButton.checked = timecode.selected;
+			selectButton.addEventListener('change', (e) => {
+				timecode.selected = selectButton.checked;
 				renderSelectionSplit();
 			});
-			split.appendChild(selectStartButton);
-
-			const selectEndButton = document.createElement('input');
-			selectEndButton.type = 'radio';
-			selectEndButton.name = 'end';
-			selectEndButton.className = 'selection';
-			selectEndButton.checked = state.selectEnd == timecode.id;
-			selectEndButton.addEventListener('change', (e) => {
-				state.selectEnd = timecode.id;
-				renderSelectionSplit();
-			});
-			split.appendChild(selectEndButton);
+			split.appendChild(selectButton);
 
 			return split;
 		}
