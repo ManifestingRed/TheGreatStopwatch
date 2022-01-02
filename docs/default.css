@@ -57,8 +57,7 @@ body.paused {
 
 #currentSplit div {
     display: inline-block;
-    color: #f29e25;
-    font-size: 1.875rem;
+    font-size: 13vw;
 }
 #currentSplit .name {
 }
@@ -66,8 +65,8 @@ body.paused {
 
 #totalTime div {
     display: inline-block;
-    font-size: 13vw;
-    
+    color: #f29e25;
+    font-size: 1.875rem;
 }
 #totalTime .name {
 }

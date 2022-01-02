@@ -19,8 +19,8 @@
 		<div class='tab active' data-title='stopwatch'>
 			<div><h1>The Great Stopwatch</h1></div>
 			
-			<div id='totalTime'><div class='name'></div><div class='time'></div></div>
 			<div id='currentSplit'><div class='name'></div><div class='time'></div></div>
+			<div id='totalTime'><div class='name'></div><div class='time'></div></div>
 			<ol id='splits'></ol>
 			<div><input id='nextSplit' type='text' placeholder='Next Split'></div>
 			<button class='button2' name='reset'>reset</button>
@@ -248,12 +248,12 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			splitTimeDiv.className = 'timing';
 			split.appendChild(splitTimeDiv);
 
-			if (timecode !== state.timecodes[0]) {
+			// if (timecode !== state.timecodes[0]) {
 				const splitTimeDuration = document.createElement('div');
 				splitTimeDuration.className = 'duration';
 				splitTimeDiv.appendChild(splitTimeDuration);
 				renderDuration(timecode, splitTimeDuration);
-			}
+			// }
 
 			const splitTimeDec = document.createElement('div');
 			splitTimeDec.className = 'button dec';
@@ -296,8 +296,8 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 		}
 		function renderDuration(timecode, splitTimeDuration) {
 			splitTimeDuration = splitTimeDuration || document.querySelector(`#split-${timecode.id} .duration`);
-			state.timecodes.concat([]).sort(x => x.id).filter(x => x.id < timecode.id).reverse().slice(0, 1).forEach(prev => {
-			       splitTimeDuration.textContent = `(${formatTimeDelta(prev.timestamp, timecode.timestamp)})`;
+			state.timecodes.concat([]).sort(x => x.id).filter(x => x.id > timecode.id).map(x => x.timestamp).concat([now]).slice(0, 1).forEach(next => {
+			       splitTimeDuration.textContent = `(${formatTimeDelta(timecode.timestamp, next)})`;
 			});
 		}
 		function render() {
