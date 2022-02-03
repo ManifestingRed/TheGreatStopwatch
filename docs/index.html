@@ -16,18 +16,21 @@
 <body>
 	<div class='tabs'>
 		
+		<div class='tabBar'></div>
+		<br><br>
 		<div class='tab active' data-title='stopwatch'>
-			<div><h1>The Great Stopwatch</h1></div>
-			
+			<div><button name='fixClipboard'>Fix clipboard</button></div>
+			<div><h1>⏱</h1></div>
+			<button class='button2' name='reset'>reset</button>
+			<button class='button2' name='pause'>pause</button>
 			<div id='currentSplit'><div class='name'></div><div class='time'></div></div>
 			<div id='totalTime'><div class='name'></div><div class='time'></div></div>
 			<ol id='splits'></ol>
 			<div><input id='nextSplit' type='text' placeholder='Next Split'></div>
-			<button class='button2' name='reset'>reset</button>
-			<button class='button2' name='pause'>pause</button>
+			
 			<button class='button2' name='split'>split</button></br>
-			<div><span id='copyAll'></span></div>
-			<div><button name='fixClipboard'>Fix clipboard</button></div>
+			
+			
 		</div>
 		<div class='tab' data-title='info'>
 			<div class='info'><h2>Info</h2><br>
@@ -75,8 +78,7 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 				</div>
 			</div>
 		</div>
-		<br><br>
-		<div class='tabBar'></div>
+		
 	</div>
 
 <!-- Scripts -->	
@@ -393,7 +395,9 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 			onCopyAll(format);
 		}).map(button => document.querySelector('#copyAll').appendChild(button));
 
-		document.addEventListener('keypress', onkeypress);
+		<blockquote>
+			document.addEventListener('keypress', onkeypress);
+			</blockquote>
 		document.querySelector('button[name=split]').addEventListener('click', (e) => {
 			doSplit();
 		});
@@ -422,6 +426,6 @@ Developed by <a href="http://PutGemInMouth.com" target="_blank"><img width="20" 
 		update();
 		render();
 	</script>
-
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 </body>
 </html>	
